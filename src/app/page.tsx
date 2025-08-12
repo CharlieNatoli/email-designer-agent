@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import DraftMarketingEmailTool from "../tools/DraftMarketingEmailDisplay.tsx";
+import DraftMarketingEmailTool from "../tools/DraftMarketingEmailDisplay";
 import type { EmailDraft } from "@/lib/EmailComponents";
+import ChatInput from "./components/ChatInput";
 
 type ChatMessage = {
   id: string;
@@ -29,25 +30,12 @@ export default function Home() {
   const [tools, setTools] = useState<ToolState[]>([]);
 
   const listRef = useRef<HTMLDivElement | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  const MAX_ROWS = 3;
-  const LINE_HEIGHT = 24; // px
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  // Auto-size the input up to 3 lines, then scroll
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    const maxHeight = LINE_HEIGHT * MAX_ROWS;
-    const next = Math.min(el.scrollHeight, maxHeight);
-    el.style.height = `${next}px`;
-    el.style.overflowY = el.scrollHeight > maxHeight ? "auto" : "hidden";
-  }, [input]);
+  // Input auto-size is handled inside ChatInput
 
   async function sendMessage() {
     const trimmed = input.trim();
@@ -319,41 +307,7 @@ export default function Home() {
         }}
       >
         <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px" }}>
-          <div
-            style={{
-              backgroundColor: "#343541",
-              borderRadius: 12,
-              padding: 8,
-              border: "1px solid #3f4147",
-            }}
-          >
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Send a message…"
-              rows={1}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  const form = e.currentTarget.form;
-                  form?.requestSubmit();
-                }
-              }}
-              style={{
-                width: "100%",
-                background: "transparent",
-                color: "#ECECEC",
-                border: "none",
-                outline: "none",
-                resize: "none",
-                fontSize: 16,
-                lineHeight: `${LINE_HEIGHT}px`,
-                minHeight: `${LINE_HEIGHT}px`,
-                maxHeight: `${LINE_HEIGHT * MAX_ROWS}px`,
-              }}
-            />
-          </div>
+          <ChatInput value={input} setValue={setInput} />
           <div style={{ fontSize: 12, opacity: 0.6, marginTop: 8 }}>
             Tip: Ask me to “draft a marketing email about X”
           </div>
