@@ -5,12 +5,11 @@ import { useMemo } from "react";
 import { renderEmailDocumentMJML, type EmailDraft } from "@/lib/EmailComponents";
 
 type Props = {
-  status: "pending" | "complete";
+  status:  "input-streaming" | "call" | "result" | undefined;
   result?: EmailDraft;
-  onOpenPreview: (html: string) => void;
 };
 
-export default function DraftMarketingEmailTool({ status, result, onOpenPreview }: Props) {
+export default function DraftMarketingEmailTool({ status, result }: Props) {
   const html = useMemo(() => {
     if (!result || !result.sections || result.sections.length === 0) return "";
     const mjml = renderEmailDocumentMJML(result.sections);
@@ -19,7 +18,7 @@ export default function DraftMarketingEmailTool({ status, result, onOpenPreview 
     // return html;
   }, [result]);
 
-  if (status === "pending") {
+  if (status === "input-streaming") {
     return (
       <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
         <div
@@ -43,9 +42,9 @@ export default function DraftMarketingEmailTool({ status, result, onOpenPreview 
     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
       <div style={{ fontSize: 13, opacity: 0.8 }}>Email draft ready</div>
       <button
-        onClick={() => {
-          if (html) onOpenPreview(html);
-        }}
+        // onClick={() => {
+        //   if (html) onOpenPreview(html);
+        // }}
         style={{
           background: "#10B981",
           color: "white",
@@ -58,6 +57,9 @@ export default function DraftMarketingEmailTool({ status, result, onOpenPreview 
       >
         Open preview
       </button>
+         <div>
+              {html}
+        </div>
     </div>
   );
 }

@@ -1,122 +1,111 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+import { useChat } from '@ai-sdk/react';
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithToolCalls,
+} from 'ai'; 
+
+
 import ChatInput from "./components/ChatInput";
 import MessageBubble from "./components/MessageBubble";
+import DraftMarketingEmailTool from "@/tools/DraftMarketingEmailDisplay";
 
-type ChatMessage = {
+
+function ToolPartRenderer({
+  part,
+}: {
+  part: {
+    type: string;
+    state?: "input-streaming" | "call" | "result" | "error";
+    toolName?: string;
+    toolCallId?: string;
+    input?: any;
+    output?: any;
+    errorText?: string;
+  };
+}) {
+  const isPending =
+    part.state === "input-streaming" || part.state === "call" || !part.state;
+
+  // Example custom rendering for a known tool
+  if (part.type === "tool-DraftMarketingEmail") {
+    if (isPending) return <ToolShell status="pending" />;
+    if (part.state === "error")
+      return <ToolShell status="error" detail={part.errorText ?? "Tool failed."} />;
+    // Success
+    return <DraftMarketingEmailTool status={part.state} result={part.output} />;
+  }
+
+}
+
+function ToolShell({
+  status,
+  detail,
+}: {
+  status: "pending" | "error";
+  detail?: string;
+}) {
+  if (status === "pending") {
+    return (
+      <div style={{ border: "1px dashed #555", borderRadius: 8, padding: 12, marginTop: 8 }}>
+        <span style={{ opacity: 0.8 }}>Tool loading…</span>
+      </div>
+    );
+  }
+  return (
+    <div style={{ border: "1px solid #903", borderRadius: 8, padding: 12, marginTop: 8 }}>
+      <strong style={{ color: "#f66" }}>Tool error:</strong>{" "}
+      <span style={{ opacity: 0.9 }}>{detail}</span>
+    </div>
+  );
+}
+
+
+type BubbleProps = {
   id: string;
   role: "user" | "assistant" | "system";
-  content: string;
+  parts?: Array<
+    | { type: "text"; text: string }
+    | {
+        type: string; // 'tool-<Name>' or 'dynamic-tool'
+        state?: "input-streaming" | "call" | "result" | "error";
+        toolName?: string;
+        toolCallId?: string;
+        input?: any;
+        output?: any;
+        errorText?: string;
+      }
+  >;
+  content?: string; // for legacy/convenience; we render parts if present
 };
 
 export default function Home() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const listRef = useRef<HTMLDivElement | null>(null);  
 
-  const listRef = useRef<HTMLDivElement | null>(null);
+  const { messages, sendMessage } = useChat({
+    transport: new DefaultChatTransport({
+      api: '/api/chat',
+    }),
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
 
-  useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages]);
+  });
+  const [input, setInput] = useState('');
 
-  async function sendMessage() {
-    const trimmed = input.trim();
-    if (!trimmed) return;
 
-    const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: trimmed,
-    };
+  // const listRef = useRef<HTMLDivElement | null>(null); 
 
-    const nextMessages = [...messages, userMessage];
-    setMessages(nextMessages);
-    setInput("");
-    setIsLoading(true);
 
-    console.log("nextMessages", nextMessages);
+  // const { messages, append, addToolResult } = useChat({
+  //   transport: new DefaultChatTransport({
+  //     api: '/api/chat',
+  //   }),
 
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: nextMessages }),
-      });
-   
-      console.log("res", res);
+  //   sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
 
-      if (!res.ok || !res.body) {
-        throw new Error("Request failed");
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let assistantContent = "";
-
-      // Optimistically add assistant message placeholder for streaming
-      const assistantMessage: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: "",
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-
-      let sseBuffer = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-
-        // Parse SSE data events from the stream
-        if (chunk.includes("data:") || sseBuffer.length > 0) {
-          sseBuffer += chunk;
-          const parts = sseBuffer.split("\n\n");
-          sseBuffer = parts.pop() ?? "";
-          for (const block of parts) {
-            const lines = block.split("\n");
-            const dataLine = lines.map((l) => l.trim()).find((l) => l.startsWith("data:"));
-            if (!dataLine) continue;
-            const payload = dataLine.replace(/^data:\s*/, "");
-            if (payload === "[DONE]") continue;
-            try {
-              const event: any = JSON.parse(payload);
-              const delta = event?.delta ?? event?.textDelta ?? event?.data ?? event?.text ?? "";
-              if (typeof delta === "string" && delta.length > 0) {
-                assistantContent += delta;
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  updated[updated.length - 1] = { ...assistantMessage, content: assistantContent };
-                  return updated;
-                });
-              }
-            } catch {
-              // ignore
-            }
-          }
-        } else {
-          // Fallback: plain text chunks
-          assistantContent += chunk;
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { ...assistantMessage, content: assistantContent };
-            return updated;
-          });
-        }
- 
-      }
-
-      setIsLoading(false);
-    } catch {
-      setIsLoading(false);
-      setMessages((prev) => [
-        ...prev,
-        { id: crypto.randomUUID(), role: "assistant", content: "Sorry, something went wrong." },
-      ]);
-    }
-  }
+  // }); 
 
   return (
     <div
@@ -142,18 +131,31 @@ export default function Home() {
               Start a conversation below.
             </div>
           )}
-          {messages.map((m) => (
-            <MessageBubble key={m.id} role={m.role}>
-              {m.content}
-            </MessageBubble>
-          ))}
-          {isLoading && (
+  
+          {messages.map((m: any) => {
+
+            return (
+              <div key={m.id} style={{ marginBottom: 12 }}>
+                <MessageBubble role={m.role}> 
+                  {m.content}
+                </MessageBubble>
+              </div>
+            );
+          })}
+
+          {/* {status === "streaming" && (
             <div style={{ opacity: 0.7, marginTop: 8 }}>Thinking…</div>
-          )}
+          )} */}
         </div>
       </div>
 
-      <ChatInput value={input} setValue={setInput} onSubmit={() => void sendMessage()} isLoading={isLoading} />
+      <ChatInput
+        value={input}
+        setValue={setInput}
+        onSubmit={() =>  sendMessage()}
+        isLoading={false}
+        // isLoading={status === "streaming" || status === "submitted"}
+      />
     </div>
   );
 }
