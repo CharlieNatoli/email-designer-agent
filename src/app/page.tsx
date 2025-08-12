@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import DraftMarketingEmailTool from "../tools/DraftMarketingEmailDisplay";
 import type { EmailDraft } from "@/lib/EmailComponents";
 import ChatInput from "./components/ChatInput";
+import MessageBubble from "./components/MessageBubble";
 
 type ChatMessage = {
   id: string;
@@ -34,8 +35,6 @@ export default function Home() {
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
-
-  // Input auto-size is handled inside ChatInput
 
   async function sendMessage() {
     const trimmed = input.trim();
@@ -201,64 +200,45 @@ export default function Home() {
             </div>
           )}
           {messages.map((m) => (
-            <div
-              key={m.id}
-              style={{
-                display: "flex",
-                justifyContent: m.role === "user" ? "flex-end" : "flex-start",
-                marginBottom: 12,
-              }}
-            >
-              <div
-                style={{
-                  backgroundColor: m.role === "user" ? "#343541" : "#444654",
-                  color: "#ECECEC",
-                  padding: "12px 14px",
-                  borderRadius: 12,
-                  maxWidth: "80%",
-                  whiteSpace: "pre-wrap",
-                  lineHeight: 1.5,
-                }}
-              >
-                {m.content}
-                {m.role === "assistant" && tools.map((t) => {
-                  if (t.name === "DraftMarketingEmail") {
-                    const result = t.result as EmailDraft | undefined;
-                    return (
-                      <div key={t.id} style={{ marginTop: 8 }}>
-                        <DraftMarketingEmailTool
-                          status={t.status}
-                          result={result}
-                          onOpenPreview={(html: string) => {
-                            setRenderedEmailHtml(html);
-                            setShowPreview(true);
-                          }}
-                        />
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
-                {m.role === "assistant" && renderedEmailHtml && (
-                  <div style={{ marginTop: 8 }}>
-                    <button
-                      onClick={() => setShowPreview((v) => !v)}
-                      style={{
-                        background: "#10B981",
-                        color: "white",
-                        border: "none",
-                        borderRadius: 8,
-                        padding: "6px 10px",
-                        cursor: "pointer",
-                        fontSize: 14,
-                      }}
-                    >
-                      {showPreview ? "Hide draft" : "Show draft"}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+            <MessageBubble key={m.id} role={m.role}>
+              {m.content}
+              {m.role === "assistant" && tools.map((t) => {
+                if (t.name === "DraftMarketingEmail") {
+                  const result = t.result as EmailDraft | undefined;
+                  return (
+                    <div key={t.id} style={{ marginTop: 8 }}>
+                      <DraftMarketingEmailTool
+                        status={t.status}
+                        result={result}
+                        onOpenPreview={(html: string) => {
+                          setRenderedEmailHtml(html);
+                          setShowPreview(true);
+                        }}
+                      />
+                    </div>
+                  );
+                }
+                return null;
+              })}
+              {m.role === "assistant" && renderedEmailHtml && (
+                <div style={{ marginTop: 8 }}>
+                  <button
+                    onClick={() => setShowPreview((v) => !v)}
+                    style={{
+                      background: "#10B981",
+                      color: "white",
+                      border: "none",
+                      borderRadius: 8,
+                      padding: "6px 10px",
+                      cursor: "pointer",
+                      fontSize: 14,
+                    }}
+                  >
+                    {showPreview ? "Hide draft" : "Show draft"}
+                  </button>
+                </div>
+              )}
+            </MessageBubble>
           ))}
           {isLoading && (
             <div style={{ opacity: 0.7, marginTop: 8 }}>Thinking…</div>
@@ -308,9 +288,6 @@ export default function Home() {
       >
         <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px" }}>
           <ChatInput value={input} setValue={setInput} />
-          <div style={{ fontSize: 12, opacity: 0.6, marginTop: 8 }}>
-            Tip: Ask me to “draft a marketing email about X”
-          </div>
         </div>
       </form>
     </div>
