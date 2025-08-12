@@ -1,8 +1,6 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import DraftMarketingEmailTool from "../tools/DraftMarketingEmailDisplay";
-import type { EmailDraft } from "@/lib/EmailComponents";
 import ChatInput from "./components/ChatInput";
 import MessageBubble from "./components/MessageBubble";
 
@@ -12,23 +10,10 @@ type ChatMessage = {
   content: string;
 };
 
-type ToolEvent = { type?: string; data?: unknown; [k: string]: unknown };
-
-type ToolState = {
-  id: string;
-  name: string;
-  status: "pending" | "complete";
-  result?: unknown;
-};
-
 export default function Home() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const [renderedEmailHtml, setRenderedEmailHtml] = useState<string | null>(null);
-  const [showPreview, setShowPreview] = useState<boolean>(false);
-  const [tools, setTools] = useState<ToolState[]>([]);
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,7 +70,7 @@ export default function Home() {
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
 
-        // Parse SSE data events from toDataStreamResponse
+        // Parse SSE data events from the stream
         if (chunk.includes("data:") || sseBuffer.length > 0) {
           sseBuffer += chunk;
           const parts = sseBuffer.split("\n\n");
@@ -97,57 +82,15 @@ export default function Home() {
             const payload = dataLine.replace(/^data:\s*/, "");
             if (payload === "[DONE]") continue;
             try {
-              const event: ToolEvent = JSON.parse(payload);
-              const type = String((event as any).type ?? "");
-
-              // Handle text deltas across possible names
-              if (/text[-_]?delta|response\.delta|message\.delta/i.test(type)) {
-                const delta =
-                  (event as any).delta ??
-                  (event as any).textDelta ??
-                  (event as any).data ??
-                  (event as any).text ??
-                  "";
-                if (typeof delta === "string" && delta.length > 0) {
-                  assistantContent += delta;
-                  setMessages((prev) => {
-                    const updated = [...prev];
-                    updated[updated.length - 1] = { ...assistantMessage, content: assistantContent };
-                    return updated;
-                  });
-                }
-                continue;
-              }
-
-              // Tool call start
-              if (/tool[-_ ]call|tool[-_ ]start/i.test(type)) {
-                const toolName = (event as any).toolName ?? (event as any).name ?? (event as any).data?.toolName;
-                if (typeof toolName === "string") {
-                  setTools((prev) => [
-                    ...prev,
-                    { id: crypto.randomUUID(), name: toolName, status: "pending" },
-                  ]);
-                }
-                continue;
-              }
-
-              // Tool result
-              if (/tool[-_ ]result|tool[-_ ]end/i.test(type) || (event as any).toolName) {
-                const toolName = (event as any).toolName ?? (event as any).name ?? (event as any).data?.toolName;
-                const resultPayload = (event as any).result ?? (event as any).data?.result ?? (event as any).data;
-                if (typeof toolName === "string") {
-                  setTools((prev) => {
-                    const idx = prev.findIndex((t) => t.name === toolName && t.status === "pending");
-                    const next = [...prev];
-                    if (idx >= 0) {
-                      next[idx] = { ...next[idx], status: "complete", result: resultPayload };
-                    } else {
-                      next.push({ id: crypto.randomUUID(), name: toolName, status: "complete", result: resultPayload });
-                    }
-                    return next;
-                  });
-                }
-                continue;
+              const event: any = JSON.parse(payload);
+              const delta = event?.delta ?? event?.textDelta ?? event?.data ?? event?.text ?? "";
+              if (typeof delta === "string" && delta.length > 0) {
+                assistantContent += delta;
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = { ...assistantMessage, content: assistantContent };
+                  return updated;
+                });
               }
             } catch {
               // ignore
@@ -180,7 +123,7 @@ export default function Home() {
       style={{
         height: "100dvh",
         display: "grid",
-        gridTemplateColumns: showPreview ? "1fr 420px" : "1fr",
+        gridTemplateColumns: "1fr",
         gridTemplateRows: "1fr auto",
         backgroundColor: "#202123",
         color: "#ECECEC",
@@ -202,42 +145,6 @@ export default function Home() {
           {messages.map((m) => (
             <MessageBubble key={m.id} role={m.role}>
               {m.content}
-              {m.role === "assistant" && tools.map((t) => {
-                if (t.name === "DraftMarketingEmail") {
-                  const result = t.result as EmailDraft | undefined;
-                  return (
-                    <div key={t.id} style={{ marginTop: 8 }}>
-                      <DraftMarketingEmailTool
-                        status={t.status}
-                        result={result}
-                        onOpenPreview={(html: string) => {
-                          setRenderedEmailHtml(html);
-                          setShowPreview(true);
-                        }}
-                      />
-                    </div>
-                  );
-                }
-                return null;
-              })}
-              {m.role === "assistant" && renderedEmailHtml && (
-                <div style={{ marginTop: 8 }}>
-                  <button
-                    onClick={() => setShowPreview((v) => !v)}
-                    style={{
-                      background: "#10B981",
-                      color: "white",
-                      border: "none",
-                      borderRadius: 8,
-                      padding: "6px 10px",
-                      cursor: "pointer",
-                      fontSize: 14,
-                    }}
-                  >
-                    {showPreview ? "Hide draft" : "Show draft"}
-                  </button>
-                </div>
-              )}
             </MessageBubble>
           ))}
           {isLoading && (
@@ -246,50 +153,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Popout preview panel */}
-      {showPreview && (
-        <div
-          style={{
-            borderLeft: "1px solid #3f4147",
-            height: "100%",
-            overflow: "hidden",
-            background: "#111214",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 12, borderBottom: "1px solid #3f4147" }}>
-            <div style={{ fontWeight: 600 }}>Email preview</div>
-            <button
-              onClick={() => setShowPreview(false)}
-              style={{ background: "transparent", color: "#9CA3AF", border: "none", cursor: "pointer" }}
-            >✕</button>
-          </div>
-          <iframe
-            title="email-preview"
-            style={{ width: "100%", height: "100%", border: "none", background: "white" }}
-            srcDoc={renderedEmailHtml ?? ""}
-          />
-        </div>
-      )}
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (!input.trim()) return;
-          void sendMessage();
-        }}
-        style={{
-          position: "sticky",
-          bottom: 0,
-          width: "100%",
-          gridColumn: showPreview ? "1 / span 2" : "1 / span 1",
-          background: "linear-gradient(180deg, rgba(32,33,35,0) 0%, #202123 40%)",
-          padding: "16px 0 24px",
-        }}
-      >
-        <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px" }}>
-          <ChatInput value={input} setValue={setInput} />
-        </div>
-      </form>
+      <ChatInput value={input} setValue={setInput} onSubmit={() => void sendMessage()} isLoading={isLoading} />
     </div>
   );
 }
