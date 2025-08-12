@@ -85,7 +85,7 @@ type BubbleProps = {
 export default function Home() {
   const listRef = useRef<HTMLDivElement | null>(null);  
 
-  const { messages, sendMessage } = useChat({
+  const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: '/api/chat',
     }),
@@ -93,20 +93,7 @@ export default function Home() {
 
   });
   const [input, setInput] = useState('');
-
-
-  // const listRef = useRef<HTMLDivElement | null>(null); 
-
-
-  // const { messages, append, addToolResult } = useChat({
-  //   transport: new DefaultChatTransport({
-  //     api: '/api/chat',
-  //   }),
-
-  //   sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
-
-  // }); 
-
+ 
   return (
     <div
       style={{
@@ -134,27 +121,28 @@ export default function Home() {
   
           {messages.map((m: any) => {
 
+            console.log("MESSAGE", m);
+
             return (
               <div key={m.id} style={{ marginBottom: 12 }}>
                 <MessageBubble role={m.role}> 
-                  {m.content}
+                  {m.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\n')}
                 </MessageBubble>
               </div>
             );
           })}
 
-          {/* {status === "streaming" && (
+          {status === "streaming" && (
             <div style={{ opacity: 0.7, marginTop: 8 }}>Thinking…</div>
-          )} */}
+          )}
         </div>
       </div>
 
       <ChatInput
         value={input}
         setValue={setInput}
-        onSubmit={() =>  sendMessage()}
-        isLoading={false}
-        // isLoading={status === "streaming" || status === "submitted"}
+        sendMessage={(text) =>  sendMessage({ text })} 
+        isLoading={status === "streaming" || status === "submitted"}
       />
     </div>
   );

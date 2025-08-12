@@ -6,19 +6,23 @@ import {
 } from '@/lib/EmailComponents';
 import { draftMarketingEmail } from '@/tools/DraftMarketingEmail';
 
+import { convertToModelMessages } from 'ai';
+
 
 export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   const { messages } = await request.json();
 
-  console.log("messages", messages);
+  const modelMessages = convertToModelMessages(messages);
+
+  console.log("modelMessages", JSON.stringify(modelMessages, null, 2));
 
   const result = streamText({
     model: openai('gpt-4o-mini'),
     system: `You are a creative email designer. Help the customer design an email. Use the DraftMarketingEmail tool to render the email if they ask for one. 
     Also talk to the customer in a friendly and engaging way. After using the DraftMarketingEmail tool, summarize the email in natural language.`,
-    messages,
+    messages: modelMessages,
     temperature: 0.7,
     tools: {
       DraftMarketingEmail: {
@@ -32,8 +36,6 @@ export async function POST(request: Request) {
       },
     },
   });
-
-  console.log("[API] result", result);
 
   // Return a simple text stream suitable for manual client consumption
   return result.toUIMessageStreamResponse();

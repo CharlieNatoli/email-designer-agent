@@ -6,11 +6,11 @@ type ChatInputProps = {
   value: string;
   setValue: (next: string) => void;
   placeholder?: string;
-  onSubmit: () => void;
+  sendMessage: (message: string) => void;
   isLoading?: boolean;
 };
 
-export default function ChatInput({ value, setValue, placeholder = "Send a message…", onSubmit, isLoading = false }: ChatInputProps) {
+export default function ChatInput({ value, setValue, placeholder = "Send a message…", sendMessage, isLoading = false }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const MAX_ROWS = 3;
@@ -29,10 +29,11 @@ export default function ChatInput({ value, setValue, placeholder = "Send a messa
 
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={e => {
         e.preventDefault();
         if (!value.trim()) return;
-        onSubmit();
+        sendMessage(value);
+        setValue('');
       }}
       style={{
         position: "sticky",
