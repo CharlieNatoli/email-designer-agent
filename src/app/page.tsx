@@ -8,10 +8,20 @@ type ChatMessage = {
   content: string;
 };
 
+type ToolEvent =
+  | { type: "text-delta" | "textDelta"; data?: string; delta?: string }
+  | {
+      type: "tool-result";
+      data?: { toolName?: string; result?: { html?: string }; html?: string };
+    };
+
 export default function Home() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [renderedEmailHtml, setRenderedEmailHtml] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState<boolean>(false);
 
   const listRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -72,20 +82,63 @@ export default function Home() {
       };
       setMessages((prev) => [...prev, assistantMessage]);
 
+      // let sseBuffer = "";
+
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
-        assistantContent += chunk;
-        setMessages((prev) => {
-          const updated = [...prev];
-          updated[updated.length - 1] = { ...assistantMessage, content: assistantContent };
-          return updated;
-        });
+
+        // // If the stream is SSE (data: ... JSON\n\n), parse events; otherwise treat as plain text delta
+        // if (chunk.includes("data:") || sseBuffer.length > 0) {
+        //   sseBuffer += chunk;
+        //   const parts = sseBuffer.split("\n\n");
+        //   sseBuffer = parts.pop() ?? "";
+        //   for (const block of parts) {
+        //     const line = block.trim();
+        //     if (!line.startsWith("data:")) continue;
+        //     const payload = line.replace(/^data:\s*/, "");
+        //     if (payload === "[DONE]") continue;
+        //     try {
+        //       const event: ToolEvent = JSON.parse(payload);
+        //       if (event.type === "text-delta" || event.type === "textDelta") {
+        //         const delta = (event as { type: string; data?: string; delta?: string }).data ??
+        //           (event as { type: string; data?: string; delta?: string }).delta ?? "";
+        //         assistantContent += delta;
+        //         setMessages((prev) => {
+        //           const updated = [...prev];
+        //           updated[updated.length - 1] = { ...assistantMessage, content: assistantContent };
+        //           return updated;
+        //         });
+        //       } else if (
+        //         event.type === "tool-result" &&
+        //         (event as { type: string; data?: { toolName?: string; result?: { html?: string }; html?: string } }).data?.toolName ===
+        //           "DraftMarketingEmail"
+        //       ) {
+        //         const payload = (event as {
+        //           type: string;
+        //           data?: { toolName?: string; result?: { html?: string }; html?: string };
+        //         }).data;
+        //         const html = payload?.result?.html ?? payload?.html;
+        //         if (typeof html === "string") setRenderedEmailHtml(html);
+        //       }
+        //     } catch {
+        //       // ignore unparseable events
+        //     }
+        //   }
+        // } else {
+        //   // Plain text streaming
+        //   assistantContent += chunk;
+        //   setMessages((prev) => {
+        //     const updated = [...prev];
+        //     updated[updated.length - 1] = { ...assistantMessage, content: assistantContent };
+        //     return updated;
+        //   });
+        // }
       }
 
       setIsLoading(false);
-    } catch (err) {
+    } catch {
       setIsLoading(false);
       setMessages((prev) => [
         ...prev,
@@ -99,6 +152,7 @@ export default function Home() {
       style={{
         height: "100dvh",
         display: "grid",
+        gridTemplateColumns: showPreview ? "1fr 420px" : "1fr",
         gridTemplateRows: "1fr auto",
         backgroundColor: "#202123",
         color: "#ECECEC",
@@ -138,6 +192,24 @@ export default function Home() {
                 }}
               >
                 {m.content}
+                {m.role === "assistant" && renderedEmailHtml && (
+                  <div style={{ marginTop: 8 }}>
+                    <button
+                      onClick={() => setShowPreview((v) => !v)}
+                      style={{
+                        background: "#10B981",
+                        color: "white",
+                        border: "none",
+                        borderRadius: 8,
+                        padding: "6px 10px",
+                        cursor: "pointer",
+                        fontSize: 14,
+                      }}
+                    >
+                      {showPreview ? "Hide draft" : "Show draft"}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -146,6 +218,31 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Popout preview panel */}
+      {showPreview && (
+        <div
+          style={{
+            borderLeft: "1px solid #3f4147",
+            height: "100%",
+            overflow: "hidden",
+            background: "#111214",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 12, borderBottom: "1px solid #3f4147" }}>
+            <div style={{ fontWeight: 600 }}>Email preview</div>
+            <button
+              onClick={() => setShowPreview(false)}
+              style={{ background: "transparent", color: "#9CA3AF", border: "none", cursor: "pointer" }}
+            >✕</button>
+          </div>
+          <iframe
+            title="email-preview"
+            style={{ width: "100%", height: "100%", border: "none", background: "white" }}
+            srcDoc={renderedEmailHtml ?? ""}
+          />
+        </div>
+      )}
 
       <form
         onSubmit={(e) => {
@@ -157,6 +254,7 @@ export default function Home() {
           position: "sticky",
           bottom: 0,
           width: "100%",
+          gridColumn: showPreview ? "1 / span 2" : "1 / span 1",
           background: "linear-gradient(180deg, rgba(32,33,35,0) 0%, #202123 40%)",
           padding: "16px 0 24px",
         }}
@@ -198,7 +296,7 @@ export default function Home() {
             />
           </div>
           <div style={{ fontSize: 12, opacity: 0.6, marginTop: 8 }}>
-            Press Enter to send, Shift + Enter for a new line.
+            Tip: Ask me to “draft a marketing email about X”
           </div>
         </div>
       </form>
