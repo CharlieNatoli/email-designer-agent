@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import DraftMarketingEmailTool from "../tools/DraftMarketingEmailDisplay.tsx";
+import type { EmailDraft } from "@/lib/EmailComponents";
 
 type ChatMessage = {
   id: string;
@@ -8,12 +10,14 @@ type ChatMessage = {
   content: string;
 };
 
-type ToolEvent =
-  | { type: "text-delta" | "textDelta"; data?: string; delta?: string }
-  | {
-      type: "tool-result";
-      data?: { toolName?: string; result?: { html?: string }; html?: string };
-    };
+type ToolEvent = { type?: string; data?: unknown; [k: string]: unknown };
+
+type ToolState = {
+  id: string;
+  name: string;
+  status: "pending" | "complete";
+  result?: unknown;
+};
 
 export default function Home() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -22,6 +26,7 @@ export default function Home() {
 
   const [renderedEmailHtml, setRenderedEmailHtml] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState<boolean>(false);
+  const [tools, setTools] = useState<ToolState[]>([]);
 
   const listRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -59,12 +64,16 @@ export default function Home() {
     setInput("");
     setIsLoading(true);
 
+    console.log("nextMessages", nextMessages);
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: nextMessages }),
       });
+   
+      console.log("res", res);
 
       if (!res.ok || !res.body) {
         throw new Error("Request failed");
@@ -82,59 +91,91 @@ export default function Home() {
       };
       setMessages((prev) => [...prev, assistantMessage]);
 
-      // let sseBuffer = "";
+      let sseBuffer = "";
 
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
 
-        // // If the stream is SSE (data: ... JSON\n\n), parse events; otherwise treat as plain text delta
-        // if (chunk.includes("data:") || sseBuffer.length > 0) {
-        //   sseBuffer += chunk;
-        //   const parts = sseBuffer.split("\n\n");
-        //   sseBuffer = parts.pop() ?? "";
-        //   for (const block of parts) {
-        //     const line = block.trim();
-        //     if (!line.startsWith("data:")) continue;
-        //     const payload = line.replace(/^data:\s*/, "");
-        //     if (payload === "[DONE]") continue;
-        //     try {
-        //       const event: ToolEvent = JSON.parse(payload);
-        //       if (event.type === "text-delta" || event.type === "textDelta") {
-        //         const delta = (event as { type: string; data?: string; delta?: string }).data ??
-        //           (event as { type: string; data?: string; delta?: string }).delta ?? "";
-        //         assistantContent += delta;
-        //         setMessages((prev) => {
-        //           const updated = [...prev];
-        //           updated[updated.length - 1] = { ...assistantMessage, content: assistantContent };
-        //           return updated;
-        //         });
-        //       } else if (
-        //         event.type === "tool-result" &&
-        //         (event as { type: string; data?: { toolName?: string; result?: { html?: string }; html?: string } }).data?.toolName ===
-        //           "DraftMarketingEmail"
-        //       ) {
-        //         const payload = (event as {
-        //           type: string;
-        //           data?: { toolName?: string; result?: { html?: string }; html?: string };
-        //         }).data;
-        //         const html = payload?.result?.html ?? payload?.html;
-        //         if (typeof html === "string") setRenderedEmailHtml(html);
-        //       }
-        //     } catch {
-        //       // ignore unparseable events
-        //     }
-        //   }
-        // } else {
-        //   // Plain text streaming
-        //   assistantContent += chunk;
-        //   setMessages((prev) => {
-        //     const updated = [...prev];
-        //     updated[updated.length - 1] = { ...assistantMessage, content: assistantContent };
-        //     return updated;
-        //   });
-        // }
+        // Parse SSE data events from toDataStreamResponse
+        if (chunk.includes("data:") || sseBuffer.length > 0) {
+          sseBuffer += chunk;
+          const parts = sseBuffer.split("\n\n");
+          sseBuffer = parts.pop() ?? "";
+          for (const block of parts) {
+            const lines = block.split("\n");
+            const dataLine = lines.map((l) => l.trim()).find((l) => l.startsWith("data:"));
+            if (!dataLine) continue;
+            const payload = dataLine.replace(/^data:\s*/, "");
+            if (payload === "[DONE]") continue;
+            try {
+              const event: ToolEvent = JSON.parse(payload);
+              const type = String((event as any).type ?? "");
+
+              // Handle text deltas across possible names
+              if (/text[-_]?delta|response\.delta|message\.delta/i.test(type)) {
+                const delta =
+                  (event as any).delta ??
+                  (event as any).textDelta ??
+                  (event as any).data ??
+                  (event as any).text ??
+                  "";
+                if (typeof delta === "string" && delta.length > 0) {
+                  assistantContent += delta;
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    updated[updated.length - 1] = { ...assistantMessage, content: assistantContent };
+                    return updated;
+                  });
+                }
+                continue;
+              }
+
+              // Tool call start
+              if (/tool[-_ ]call|tool[-_ ]start/i.test(type)) {
+                const toolName = (event as any).toolName ?? (event as any).name ?? (event as any).data?.toolName;
+                if (typeof toolName === "string") {
+                  setTools((prev) => [
+                    ...prev,
+                    { id: crypto.randomUUID(), name: toolName, status: "pending" },
+                  ]);
+                }
+                continue;
+              }
+
+              // Tool result
+              if (/tool[-_ ]result|tool[-_ ]end/i.test(type) || (event as any).toolName) {
+                const toolName = (event as any).toolName ?? (event as any).name ?? (event as any).data?.toolName;
+                const resultPayload = (event as any).result ?? (event as any).data?.result ?? (event as any).data;
+                if (typeof toolName === "string") {
+                  setTools((prev) => {
+                    const idx = prev.findIndex((t) => t.name === toolName && t.status === "pending");
+                    const next = [...prev];
+                    if (idx >= 0) {
+                      next[idx] = { ...next[idx], status: "complete", result: resultPayload };
+                    } else {
+                      next.push({ id: crypto.randomUUID(), name: toolName, status: "complete", result: resultPayload });
+                    }
+                    return next;
+                  });
+                }
+                continue;
+              }
+            } catch {
+              // ignore
+            }
+          }
+        } else {
+          // Fallback: plain text chunks
+          assistantContent += chunk;
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { ...assistantMessage, content: assistantContent };
+            return updated;
+          });
+        }
+ 
       }
 
       setIsLoading(false);
@@ -192,6 +233,24 @@ export default function Home() {
                 }}
               >
                 {m.content}
+                {m.role === "assistant" && tools.map((t) => {
+                  if (t.name === "DraftMarketingEmail") {
+                    const result = t.result as EmailDraft | undefined;
+                    return (
+                      <div key={t.id} style={{ marginTop: 8 }}>
+                        <DraftMarketingEmailTool
+                          status={t.status}
+                          result={result}
+                          onOpenPreview={(html: string) => {
+                            setRenderedEmailHtml(html);
+                            setShowPreview(true);
+                          }}
+                        />
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
                 {m.role === "assistant" && renderedEmailHtml && (
                   <div style={{ marginTop: 8 }}>
                     <button
