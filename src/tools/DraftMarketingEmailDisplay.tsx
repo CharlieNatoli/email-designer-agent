@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { renderEmailDocumentMJML, type EmailDraft } from "@/lib/EmailComponents";
 
 type Props = {
-  status:  "input-streaming" | "call" | "result" | undefined;
+  status:  "input-streaming" | "call" | "result" | "input-available";
   result?: EmailDraft;
 };
 
@@ -18,7 +18,11 @@ export default function DraftMarketingEmailTool({ status, result }: Props) {
     // return html;
   }, [result]);
 
-  if (status === "input-streaming") {
+  console.log("[DraftMarketingEmailTool] status", status);
+  console.log("[DraftMarketingEmailTool] result", result);
+  
+
+  if (status === "input-available") {
     return (
       <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
         <div
