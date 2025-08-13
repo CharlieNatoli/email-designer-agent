@@ -12,12 +12,15 @@ export default function ImageSidebar() {
   const [preview, setPreview] = useState<UploadItem | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [readyIds, setReadyIds] = useState<Set<string>>(new Set());
 
   const refresh = useCallback(async () => {
     try {
       const res = await fetch("/api/uploads", { cache: "no-store" });
       const data = await res.json();
       setItems((data.files ?? []).map((name: string) => ({ name })));
+      const ids = new Set<string>((data.infoIds ?? []) as string[]);
+      setReadyIds(ids);
     } catch {}
   }, []);
 
@@ -131,6 +134,26 @@ export default function ImageSidebar() {
               <div style={{ position: "absolute", top: 6, left: 6 }}>
                 <img src="/file.svg" alt="file" style={{ width: 16, height: 16, opacity: 0.9 }} />
               </div>
+              {(() => {
+                const id = item.name.split(".")[0];
+                const isReady = readyIds.has(id);
+                if (isReady) return null;
+                return (
+                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.4)", borderRadius: 6 }}>
+                    <div
+                      aria-label="Analyzing image"
+                      style={{
+                        width: 28,
+                        height: 28,
+                        border: "3px solid rgba(255,255,255,0.18)",
+                        borderTopColor: "#7b86ff",
+                        borderRadius: "50%",
+                        animation: "spin 1s linear infinite",
+                      }}
+                    />
+                  </div>
+                );
+              })()}
               <div style={{ position: "absolute", right: 6, bottom: 6 }}>
                 <div style={{ pointerEvents: "auto", visibility: hovered === item.name ? "visible" : "hidden" }}>
                   <button

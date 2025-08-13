@@ -2,15 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import { openai } from "@ai-sdk/openai";
+import { generateObject } from "ai";
+import probe from "probe-image-size";
+import { z } from "zod";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const uploadsDir = path.join(process.cwd(), "public", "uploads");
+const infoDir = path.join(process.cwd(), "public", "image_info");
 
 async function ensureUploadsDir() {
 	try {
 		await fs.mkdir(uploadsDir, { recursive: true });
+		await fs.mkdir(infoDir, { recursive: true });
 	} catch {}
 }
 
@@ -40,7 +46,13 @@ export async function GET() {
 	await ensureUploadsDir();
 	const entries = await fs.readdir(uploadsDir).catch(() => [] as string[]);
 	const files = entries.filter((name) => isImageFile(name));
-	return NextResponse.json({ files });
+	// Also report which images already have metadata generated
+	let infoIds: string[] = [];
+	try {
+		const infos = await fs.readdir(infoDir);
+		infoIds = infos.filter((f) => f.endsWith('.json')).map((f) => f.replace(/\.json$/,''));
+	} catch {}
+	return NextResponse.json({ files, infoIds });
 }
 
 export async function POST(req: NextRequest) {
@@ -59,6 +71,57 @@ export async function POST(req: NextRequest) {
 		const filePath = path.join(uploadsDir, filename);
 		await fs.writeFile(filePath, buffer);
 		saved.push(filename);
+
+		// Kick off metadata generation in the background
+		(async () => {
+			// Extract width/height using probe-image-size
+			let width: number | undefined;
+			let height: number | undefined;
+			try {
+				const syncFn = (probe as any).sync as ((input: any) => { width?: number; height?: number } | undefined) | undefined;
+				const p = syncFn ? syncFn(buffer) : undefined;
+				if (p && p.width && p.height) { width = p.width; height = p.height; }
+			} catch {}
+
+			try {
+				const base64 = `data:${value.type || 'image/*'};base64,${buffer.toString('base64')}`;
+				const extractSchema = z.object({
+					image_contents: z.string().min(1).max(300).optional(),
+					text: z.string().max(2000).optional(),
+					image_good_for: z.array(z.enum(["banner","product photography","lifestyle photography","background","section heading","other"])).min(1).max(2).optional(),
+					suggested_alt_text: z.string().min(3).max(200).optional(),
+				});
+				const analysis = await generateObject({
+					model: openai('gpt-4o'),
+					schema: extractSchema,
+					messages: [
+						{
+							role: 'user',
+							content: [
+								{ type: 'text', text: 'Analyze this image for use in marketing emails. Describe contents in one sentence, extract visible overlay text, suggest 1-2 tags from the set {banner, product photography, lifestyle photography, background, section heading, other}, and propose concise alt text.' },
+								{ type: 'image', image: base64 },
+							],
+						},
+					],
+				});
+				const obj = analysis.object as any;
+				const json = {
+					id: id,
+					filename,
+					width,
+					height,
+					image_contents: obj?.image_contents,
+					text: obj?.text,
+					image_good_for: obj?.image_good_for,
+					suggested_alt_text: obj?.suggested_alt_text,
+				};
+				await fs.writeFile(path.join(infoDir, `${id}.json`), JSON.stringify(json, null, 2), 'utf8');
+			} catch (err) {
+				// If analysis fails, still save basic info
+				const fallback = { id, filename, width, height };
+				await fs.writeFile(path.join(infoDir, `${id}.json`), JSON.stringify(fallback, null, 2), 'utf8');
+			}
+		})().catch(() => {});
 	}
 
 	return NextResponse.json({ saved });
@@ -78,6 +141,12 @@ export async function DELETE(req: NextRequest) {
 	const filePath = path.join(uploadsDir, name);
 	try {
 		await fs.unlink(filePath);
+		// Best-effort: also remove corresponding image_info JSON
+		try {
+			const idOnly = name.split(".")[0];
+			const infoPath = path.join(infoDir, `${idOnly}.json`);
+			await fs.unlink(infoPath).catch(() => {});
+		} catch {}
 		return new NextResponse(null, { status: 204 });
 	} catch (err) {
 		return new NextResponse("Not found", { status: 404 });

@@ -5,6 +5,7 @@ import {
   DraftToolInputSchema,  
 } from '@/lib/EmailComponents';
 import { draftMarketingEmail } from '@/tools/DraftMarketingEmail';
+import { readAllImageInfo, formatImageInfoForSystemPrompt } from '@/lib/imageInfo';
 
 import { convertToModelMessages } from 'ai';
 
@@ -18,10 +19,16 @@ export async function POST(request: Request) {
 
   console.log("modelMessages", JSON.stringify(modelMessages, null, 2));
 
+  const imageInfos = await readAllImageInfo();
+  const imageContext = formatImageInfoForSystemPrompt(imageInfos);
+
   const result = streamText({
     model: openai('gpt-4o-mini'),
     system: `You are a creative email designer. Help the customer design an email. Use the DraftMarketingEmail tool to render the email if they ask for one. 
-    Also talk to the customer in a friendly and engaging way. After using the DraftMarketingEmail tool, summarize the email in natural language.`,
+    Also talk to the customer in a friendly and engaging way. After using the DraftMarketingEmail tool, summarize the email in natural language.
+    
+    ${imageContext}
+    `,
     messages: modelMessages,
     temperature: 0.7,
     tools: {
