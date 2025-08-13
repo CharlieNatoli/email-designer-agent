@@ -119,19 +119,29 @@ export default function Home() {
             </div>
           )}
   
-          {messages.map((m: any) => {
-
-            console.log("MESSAGE", m);
+          {messages.map((m: any) => { 
+            // only log the last message
+            if (m.id === messages[messages.length - 1].id) {
+              console.log("MESSAGE", m);
+            }
 
             return (
               <div key={m.id} style={{ marginBottom: 12 }}>
-                <MessageBubble role={m.role}> 
-                  {m.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\n')}
-                </MessageBubble>
-              </div>
+                {m.parts?.map((p: any) => {
+                    if (p.type === "text") {
+                      return <MessageBubble role={m.role}>{p.text}</MessageBubble>
+                    }
+                    if (p.type === "tool-DraftMarketingEmail") {
+                      return <DraftMarketingEmailTool status={p.state} result={p.output} />
+                    } 
+                  }) 
+                }
+              </div> 
             );
+
           })}
 
+ 
           {status === "streaming" && (
             <div style={{ opacity: 0.7, marginTop: 8 }}>Thinking…</div>
           )}
@@ -147,3 +157,4 @@ export default function Home() {
     </div>
   );
 }
+
