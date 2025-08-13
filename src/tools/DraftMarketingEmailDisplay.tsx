@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
-// import mjml2html from 'mjml'
+import { useMemo } from "react"; 
+
+
 import { renderEmailDocumentMJML, type EmailDraft } from "@/lib/EmailComponents";
 
 type Props = {
@@ -13,9 +14,10 @@ export default function DraftMarketingEmailTool({ status, result }: Props) {
   const html = useMemo(() => {
     if (!result || !result.sections || result.sections.length === 0) return "";
     const mjml = renderEmailDocumentMJML(result.sections);
-    return mjml;
-    // const { html } = mjml2html(mjml);
-    // return html;
+    // return mjml;
+    var mjml2html = require('mjml-browser')
+    const { html } = mjml2html(mjml);
+    return <div dangerouslySetInnerHTML={{ __html: html }} />;
   }, [result]);
 
   console.log("[DraftMarketingEmailTool] status", status);

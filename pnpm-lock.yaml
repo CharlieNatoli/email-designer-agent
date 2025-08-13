@@ -20,6 +20,9 @@ importers:
       mjml:
         specifier: ^4.15.3
         version: 4.15.3
+      mjml-browser:
+        specifier: ^4.15.3
+        version: 4.15.3
       next:
         specifier: 15.4.6
         version: 15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -1484,6 +1487,9 @@ packages:
 
   mjml-body@4.15.3:
     resolution: {integrity: sha512-7pfUOVPtmb0wC+oUOn4xBsAw4eT5DyD6xqaxj/kssu6RrFXOXgJaVnDPAI9AzIvXJ/5as9QrqRGYAddehwWpHQ==}
+
+  mjml-browser@4.15.3:
+    resolution: {integrity: sha512-HS3YFo6mfle+TLnaRzUbDa9COwkm860lAuHXD5e7qxi90AVhGdAnG1KAVrriEfQSuYcAZbhZjZtp6GhvXi6XcA==}
 
   mjml-button@4.15.3:
     resolution: {integrity: sha512-79qwn9AgdGjJR1vLnrcm2rq2AsAZkKC5JPwffTMG+Nja6zGYpTDZFZ56ekHWr/r1b5WxkukcPj2PdevUug8c+Q==}
@@ -3720,6 +3726,8 @@ snapshots:
       mjml-core: 4.15.3
     transitivePeerDependencies:
       - encoding
+
+  mjml-browser@4.15.3: {}
 
   mjml-button@4.15.3:
     dependencies:
