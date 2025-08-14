@@ -15,10 +15,11 @@
     "mjml": "^4.15.3",
     "mjml-browser": "^4.15.3",
     "next": "15.4.6",
+    "openai": "^5.12.2",
+    "probe-image-size": "^7.2.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "zod": "^3.25.76",
-    "probe-image-size": "^7.2.3"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -38,7 +38,7 @@ export async function POST(request: Request) {
         execute: async ({ brief }) => {
           const result = await draftMarketingEmail(brief);
           // Only return the serializable object for streaming to the client
-          return result.object;
+          return result;
         },
       },
     },

@@ -41,8 +41,8 @@ export default function DraftMarketingEmailTool({ status, result }: Props) {
   }, [instanceId]);
 
   const compiled = useMemo(() => {
-    if (!result || !result.emailDraftMJML) return null;
-    const mjml = result.emailDraftMJML;
+    if (!result ) return null;
+    const mjml = result;
     var mjml2html = require('mjml-browser');
     const { html } = mjml2html(mjml);
     console.log("[DraftMarketingEmailTool] mjml", mjml);
@@ -79,6 +79,8 @@ export default function DraftMarketingEmailTool({ status, result }: Props) {
         <div style={{ fontSize: 13, opacity: 0.8 }}>Email draft ready</div>
         <button
           onClick={() => {
+            console.log("[DraftMarketingEmailTool] compiled", compiled);
+            console.log("[DraftMarketingEmailTool] instanceId", instanceId);
             if (compiled) setOpenId(instanceId);
           }}
           style={{
