@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useState } from "react"; 
 import { createPortal } from "react-dom";
 
-import { renderEmailDocumentMJML, type EmailDraft } from "@/lib/EmailComponents";
+// MJML is compiled from a full MJML document string returned by the tool
 
 // Module-scoped registry to ensure only one preview drawer is open at a time
 let currentOpenId: string | null = null;
@@ -25,7 +25,7 @@ function subscribe(listener: (id: string | null) => void) {
 
 type Props = {
   status:  "input-streaming" | "call" | "result" | "input-available";
-  result?: EmailDraft;
+  result?: { emailDraftMJML: string };
 };
 
 export default function DraftMarketingEmailTool({ status, result }: Props) {
@@ -41,8 +41,8 @@ export default function DraftMarketingEmailTool({ status, result }: Props) {
   }, [instanceId]);
 
   const compiled = useMemo(() => {
-    if (!result || !result.sections || result.sections.length === 0) return null;
-    const mjml = renderEmailDocumentMJML(result.sections);
+    if (!result || !result.emailDraftMJML) return null;
+    const mjml = result.emailDraftMJML;
     var mjml2html = require('mjml-browser');
     const { html } = mjml2html(mjml);
     console.log("[DraftMarketingEmailTool] mjml", mjml);

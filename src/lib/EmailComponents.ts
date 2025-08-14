@@ -300,16 +300,7 @@ export function renderTreeToMJML(node: z.infer<typeof sectionNodeSchema> | z.inf
   }
 }
 
-export function renderEmailDocumentMJML(sections: Array<z.infer<typeof sectionNodeSchema>>): string {
-  const bodyContent = sections.map((s) => new SectionComponent(s).renderMJML()).join("");
-  return `<mjml><mj-body background-color=\"#F8FAFC\">${bodyContent}</mj-body></mjml>`;
-}
-
-export const emailDraftSchema = z.object({
-  sections: z.array(sectionNodeSchema).min(1)
-});
-
-export type EmailDraft = z.infer<typeof emailDraftSchema>;
+// renderEmailDocumentMJML, emailDraftSchema, and EmailDraft are no longer used
 
 export function escapeHtml(str: string): string {
   return str

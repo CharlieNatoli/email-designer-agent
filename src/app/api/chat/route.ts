@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
   const result = streamText({
     model: openai('gpt-4o-mini'),
-    system: `You are a creative email designer. Help the customer design an email. Use the DraftMarketingEmail tool to render the email if they ask for one. 
+    system: `You are a creative email designer. Help the customer design an email. Use the DraftMarketingEmail tool to render the email if they ask for one.
     Also talk to the customer in a friendly and engaging way. After using the DraftMarketingEmail tool, summarize the email in natural language.
     
     ${imageContext}
