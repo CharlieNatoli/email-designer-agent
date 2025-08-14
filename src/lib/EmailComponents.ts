@@ -267,7 +267,7 @@ export class ImageComponent extends BaseEmailComponent<z.infer<typeof imageAttri
   }
   renderMJML(): string {
     const { imageId, alt, width, padding } = this.attributes;
-    const src = `/uploads/${imageId}.jpg`;
+    const src = `/uploads/${imageId}.jpg`; // USE THE SAVED EXTENSION
     const attrs = [
       imageId ? `src="${src}"` : "",
       alt ? `alt="${escapeHtml(alt)}"` : "",

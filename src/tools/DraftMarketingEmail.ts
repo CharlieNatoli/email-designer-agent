@@ -10,16 +10,26 @@ export async function draftMarketingEmail(brief: string) {
     const imageInfos = await readAllImageInfo();
     const imageContext = formatImageInfoForSystemPrompt(imageInfos);
     const result = await generateObject({
-        model: openai('gpt-4o-mini'),
+        model: openai('gpt-4o'),
         schema: emailDraftSchema,
         prompt: `You are a creative email designer.
+
         You can use any of the uploaded images listed below in the email you design.
         ${imageContext}
         Rules for using images:
         - Use the component type "image" when you want to insert an image.
         - The image component's attributes should include only { imageId: string } at minimum, where imageId equals the image's id from the catalog above (do not include URLs or extensions).
         - Do not include the alt text yourself; it will be auto-filled using suggested_alt_text from the catalog when rendering.
-        Create a marketing email based on the following description: ${brief}`,
+
+        Design guidelines:
+        - Be creative and bold with layouts, visuals, and typography while staying on-brand.
+        - Keep copy brief and skimmable; prefer short headlines and 1–2 sentence body text.
+        - Include clear, actionable CTAs using the "button" component with compelling text.
+        - Make the primary CTA prominent and near the top; add secondary CTAs if there are multiple actions the reader can take.
+        - Structure content with "section" and "column" components; use "spacer" and "divider" to create rhythm and separation.
+
+        Create a marketing email based on the following description: 
+        ${brief}`,
     });
     console.log("[draftMarketingEmail] result body", JSON.stringify(result.response.body, null, 2));
     console.log("[draftMarketingEmail] result object", JSON.stringify((result as any).object, null, 2));
