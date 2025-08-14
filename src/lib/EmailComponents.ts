@@ -60,8 +60,10 @@ export const buttonAttributesSchema = z.object({
 });
 
 export const imageAttributesSchema = z.object({
-  // Use the uploaded image's id (UUID without extension)
-  imageId: z.string().describe("Use the uploaded image's id (UUID without extension)"),
+  // Use the uploaded image's filename including extension (e.g. abc123.jpg)
+  image_filename: z
+    .string()
+    .describe("Use the uploaded image's filename including extension (e.g. abc123.jpg)"),
   alt: z.string().optional(),
   width: z.string().optional(),
   padding: z.string().optional().default("0px")
@@ -266,10 +268,10 @@ export class ImageComponent extends BaseEmailComponent<z.infer<typeof imageAttri
     super(node.id, "image", node.attributes);
   }
   renderMJML(): string {
-    const { imageId, alt, width, padding } = this.attributes;
-    const src = `/uploads/${imageId}.jpg`; // USE THE SAVED EXTENSION
+    const { image_filename, alt, width, padding } = this.attributes;
+    const src = image_filename ? `/uploads/${image_filename}` : "";
     const attrs = [
-      imageId ? `src="${src}"` : "",
+      image_filename ? `src="${src}"` : "",
       alt ? `alt="${escapeHtml(alt)}"` : "",
       width ? `width="${width}"` : "",
       padding ? `padding="${padding}"` : ""

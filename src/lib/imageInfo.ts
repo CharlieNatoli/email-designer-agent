@@ -38,9 +38,9 @@ export function formatImageInfoForSystemPrompt(infos: ImageInfo[]): string {
   const parts = infos.map((i) => {
     const tags = i.image_good_for && i.image_good_for.length ? `tags: ${i.image_good_for.join(', ')}` : "tags: none";
     const dims = i.width && i.height ? `${i.width}x${i.height}` : "unknown size";
-    return `- id: ${i.id}, file: ${i.filename}, size: ${dims}, contents: ${i.image_contents ?? 'n/a'}, text: ${i.text ?? 'n/a'}, ${tags}, suggested_alt_text: ${i.suggested_alt_text ?? 'n/a'}`;
+    return `- image_filename: ${i.filename}, size: ${dims}, contents: ${i.image_contents ?? 'n/a'}, text: ${i.text ?? 'n/a'}, ${tags}, suggested_alt_text: ${i.suggested_alt_text ?? 'n/a'}`;
   });
-  return `Available uploaded images (use ids to reference images):\n${parts.join('\n')}`;
+  return `Available uploaded images (use image_filename to reference images):\n${parts.join('\n')}`;
 }
 
 

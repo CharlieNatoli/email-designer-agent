@@ -18,7 +18,7 @@ export async function draftMarketingEmail(brief: string) {
         ${imageContext}
         Rules for using images:
         - Use the component type "image" when you want to insert an image.
-        - The image component's attributes should include only { imageId: string } at minimum, where imageId equals the image's id from the catalog above (do not include URLs or extensions).
+        - The image component's attributes should include only { image_filename: string } at minimum, where image_filename equals the full filename (including extension) from the catalog above, e.g. "abc123.jpg".
         - Do not include the alt text yourself; it will be auto-filled using suggested_alt_text from the catalog when rendering.
 
         Design guidelines:
