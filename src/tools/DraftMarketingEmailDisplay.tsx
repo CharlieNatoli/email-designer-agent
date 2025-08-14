@@ -45,6 +45,7 @@ export default function DraftMarketingEmailTool({ status, result }: Props) {
     const mjml = renderEmailDocumentMJML(result.sections);
     var mjml2html = require('mjml-browser');
     const { html } = mjml2html(mjml);
+    console.log("[DraftMarketingEmailTool] mjml", mjml);
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
   }, [result]);
 
