@@ -1,7 +1,3 @@
-// import { generateObject } from "ai";
-// import { openai } from "@ai-sdk/openai";
-// import { z } from "zod";
-
 
 import { OpenAI } from "openai";
 import { readAllImageInfo, formatImageInfoForSystemPrompt } from "@/lib/imageInfo";
@@ -134,15 +130,4 @@ export async function draftMarketingEmail(brief: string) {
         return null;
     }
 
-
-    // const result = await generateObject({
-    //     model: openai('gpt-4o'),
-    //     schema: z.object({
-    //         emailDraftMJML: z.string().min(1).describe("Complete MJML document starting with <mjml> and containing <mj-body>"),
-    //     }),
-    //     prompt: systemPrompt
-    // });
-    // console.log("[draftMarketingEmail] result body", JSON.stringify(result.response.body, null, 2));
-    // console.log("[draftMarketingEmail] result object", JSON.stringify((result as any).object, null, 2));
-    
 }
