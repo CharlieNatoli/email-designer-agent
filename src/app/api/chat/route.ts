@@ -44,6 +44,8 @@ export async function POST(request: Request) {
     },
   });
 
+  
+
   // Return a simple text stream suitable for manual client consumption
   return result.toUIMessageStreamResponse();
 }
