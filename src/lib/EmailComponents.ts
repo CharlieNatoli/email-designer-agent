@@ -8,7 +8,8 @@ export type EmailComponentType =
   | "text"
   | "divider"
   | "spacer"
-  | "button";
+  | "button"
+  | "image";
 
 export abstract class BaseEmailComponent<TAttributes extends Record<string, unknown> = Record<string, unknown>> {
   id: string;
@@ -22,7 +23,7 @@ export abstract class BaseEmailComponent<TAttributes extends Record<string, unkn
   }
 
   // Render MJML string for this component. Implement in subclasses.
-  abstract renderMJML(childrenMJML?: string): string;
+  abstract renderMJML(context?: RenderContext): string;
 }
 
 // Attribute Schemas
@@ -58,6 +59,14 @@ export const buttonAttributesSchema = z.object({
   padding: z.string().optional().default("0px")
 });
 
+export const imageAttributesSchema = z.object({
+  // Use the uploaded image's id (UUID without extension)
+  imageId: z.string().describe("Use the uploaded image's id (UUID without extension)"),
+  alt: z.string().optional(),
+  width: z.string().optional(),
+  padding: z.string().optional().default("0px")
+});
+
 export const columnAttributesSchema = z.object({
   width: z.number().int().min(0).max(100).default(100),
   padding: z.string().optional().default("0px")
@@ -68,6 +77,11 @@ export const sectionAttributesSchema = z.object({
   padding: z.string().optional().default("24px 16px"),
   fullWidth: z.boolean().optional().default(false)
 });
+
+// Optional render-time context passed down into components
+export type RenderContext = {
+  imageIdToAlt?: Record<string, string | undefined>;
+};
 
 // Recursive schema for the component tree
 // We create placeholders first and fill them with z.lazy
@@ -97,11 +111,18 @@ export const buttonNodeSchema = z.object({
   attributes: buttonAttributesSchema
 });
 
+export const imageNodeSchema = z.object({
+  id: z.string(),
+  type: z.literal("image"),
+  attributes: imageAttributesSchema
+});
+
 export const leafComponentSchema = z.discriminatedUnion("type", [
   textNodeSchema,
   dividerNodeSchema,
   spacerNodeSchema,
-  buttonNodeSchema
+  buttonNodeSchema,
+  imageNodeSchema
 ]);
 
 export type LeafComponentNode = z.infer<typeof leafComponentSchema>;
@@ -135,8 +156,8 @@ export class SectionComponent extends BaseEmailComponent<z.infer<typeof sectionA
     super(node.id, "section", node.attributes);
     this.children = node.children.map((c: z.infer<typeof columnNodeSchema>) => new ColumnComponent(c));
   }
-  renderMJML(): string {
-    const childrenMJML = this.children.map((c) => c.renderMJML()).join("");
+  renderMJML(context?: RenderContext): string {
+    const childrenMJML = this.children.map((c) => c.renderMJML(context)).join("");
     const { backgroundColor, padding, fullWidth } = this.attributes;
     const attrs = [
       backgroundColor ? `background-color=\"${backgroundColor}\"` : "",
@@ -148,20 +169,20 @@ export class SectionComponent extends BaseEmailComponent<z.infer<typeof sectionA
 }
 
 export class ColumnComponent extends BaseEmailComponent<z.infer<typeof columnAttributesSchema>> {
-  children: Array<TextComponent | DividerComponent | SpacerComponent | ButtonComponent>;
+  children: Array<TextComponent | DividerComponent | SpacerComponent | ButtonComponent | ImageComponent>;
   constructor(node: z.infer<typeof columnNodeSchema>) {
     super(node.id, "column", node.attributes);
     this.children = node.children.map((child: LeafComponentNode) => createLeafInstance(child));
   }
-  renderMJML(): string {
-    const childrenMJML = this.children.map((c) => c.renderMJML()).join("");
+  renderMJML(context?: RenderContext): string {
+    const childrenMJML = this.children.map((c) => c.renderMJML(context)).join("");
     const { width, padding } = this.attributes;
     const attrs = [`width=\"${width}%\"`, padding ? `padding=\"${padding}\"` : ""].filter(Boolean).join(" ");
     return `<mj-column ${attrs}>${childrenMJML}</mj-column>`;
   }
 }
 
-function createLeafInstance(node: LeafComponentNode): TextComponent | DividerComponent | SpacerComponent | ButtonComponent {
+function createLeafInstance(node: LeafComponentNode): TextComponent | DividerComponent | SpacerComponent | ButtonComponent | ImageComponent {
   switch (node.type) {
     case "text":
       return new TextComponent(node);
@@ -171,6 +192,8 @@ function createLeafInstance(node: LeafComponentNode): TextComponent | DividerCom
       return new SpacerComponent(node);
     case "button":
       return new ButtonComponent(node);
+    case "image":
+      return new ImageComponent(node);
   }
 }
 
@@ -178,7 +201,7 @@ export class TextComponent extends BaseEmailComponent<z.infer<typeof textAttribu
   constructor(node: z.infer<typeof textNodeSchema>) {
     super(node.id, "text", node.attributes);
   }
-  renderMJML(): string {
+  renderMJML(_context?: RenderContext): string {
     const { content, color, fontSize, fontFamily, lineHeight, padding } = this.attributes;
     const attrs = [
       color ? `color=\"${color}\"` : "",
@@ -195,7 +218,7 @@ export class DividerComponent extends BaseEmailComponent<z.infer<typeof dividerA
   constructor(node: z.infer<typeof dividerNodeSchema>) {
     super(node.id, "divider", node.attributes);
   }
-  renderMJML(): string {
+  renderMJML(_context?: RenderContext): string {
     const { borderColor, borderWidth, padding } = this.attributes;
     const attrs = [
       borderColor ? `border-color=\"${borderColor}\"` : "",
@@ -238,6 +261,23 @@ export class ButtonComponent extends BaseEmailComponent<z.infer<typeof buttonAtt
   }
 }
 
+export class ImageComponent extends BaseEmailComponent<z.infer<typeof imageAttributesSchema>> {
+  constructor(node: z.infer<typeof imageNodeSchema>) {
+    super(node.id, "image", node.attributes);
+  }
+  renderMJML(): string {
+    const { imageId, alt, width, padding } = this.attributes;
+    const src = `/uploads/${imageId}.jpg`;
+    const attrs = [
+      imageId ? `src="${src}"` : "",
+      alt ? `alt="${escapeHtml(alt)}"` : "",
+      width ? `width="${width}"` : "",
+      padding ? `padding="${padding}"` : ""
+    ].filter(Boolean).join(" ");
+    return `<mj-image ${attrs} />`;
+  }
+}
+
 // TODO - is this needed?
 export function renderTreeToMJML(node: z.infer<typeof sectionNodeSchema> | z.infer<typeof columnNodeSchema> | LeafComponentNode): string {
   switch (node.type) {
@@ -253,6 +293,8 @@ export function renderTreeToMJML(node: z.infer<typeof sectionNodeSchema> | z.inf
       return new SpacerComponent(node as z.infer<typeof spacerNodeSchema>).renderMJML();
     case "button":
       return new ButtonComponent(node as z.infer<typeof buttonNodeSchema>).renderMJML();
+    case "image":
+      return new ImageComponent(node as z.infer<typeof imageNodeSchema>).renderMJML();
   }
 }
 
