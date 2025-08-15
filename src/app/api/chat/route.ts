@@ -48,8 +48,13 @@ export async function POST(request: Request) {
           optional_instructions: z.string().optional().describe("add any optional instructions here"),
         }),
         execute: async ({ optional_instructions }) => {
-          const result = await critiqueEmail(optional_instructions, modelMessages);
-          return result;
+          try {
+            const result = await critiqueEmail(optional_instructions, modelMessages);
+            return result;
+          } catch (error) {
+            console.error("[critiqueEmail] error", error);
+            return "Error: " + error;
+          }
         },
       },
     },

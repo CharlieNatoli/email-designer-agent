@@ -2,6 +2,8 @@ public/uploads/*
 !public/uploads/.gitkeep
 public/image_info/*
 !public/image_info/.gitkeep
+public/screenshots/*
+!public/screenshots/.gitkeep
 email.png
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.

@@ -62,7 +62,7 @@ export async function renderEmailToPng(mjml: string) {
     const b64 = buffer.toString('base64');
 
     // save html to /public/screenshots/email.png
-    fs.writeFileSync(`/public/screenshots/${uuidv4()}.png`, buffer);
+    fs.writeFileSync(`./public/screenshots/${uuidv4()}.png`, buffer);
 
 
     return { buffer, base64: b64 };
