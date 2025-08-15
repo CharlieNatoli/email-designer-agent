@@ -1,9 +1,30 @@
 
 import { OpenAI } from "openai";
 import { readAllImageInfo, formatImageInfoForSystemPrompt } from "@/lib/imageInfo";
+import { renderEmailToPng } from "@/utils/screenshot";
 
 
 export async function draftMarketingEmail(brief: string) {
+
+    const tmp_mjml = `<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+
+        <mj-image width="100px" src="/assets/img/logo-small.png"></mj-image>
+
+        <mj-divider border-color="#F45E43"></mj-divider>
+
+        <mj-text font-size="20px" color="#F45E43" font-family="helvetica">Hello World</mj-text>
+
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`
+
+
+    const rendered = await renderEmailToPng(tmp_mjml);
+    console.log("[draftMarketingEmail] rendered", rendered); 
 
     const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY});
     
@@ -105,14 +126,16 @@ export async function draftMarketingEmail(brief: string) {
     </final-output-format>
     `
 
-  
+
     const result = await openai.responses.create({
       model: "gpt-5-mini",
       instructions: systemPrompt, 
       input: brief,
       reasoning: {
-        effort: "high",
-        summary: "detailed"
+        // effort: "high",
+        // summary: "detailed"
+        effort: "minimal",
+        // summary: "concise"
       }
     });
     
@@ -120,6 +143,8 @@ export async function draftMarketingEmail(brief: string) {
     // search for all items in result.output wheree type="reasoning", 
     const reasoningText = result.output.find((item: any) => item.type === "reasoning");
     console.log("[draftMarketingEmail] reasoning text", JSON.stringify(reasoningText, null, 2)); 
+
+    const rendering = await renderEmailToPng(result.output_text);
 
     const regex = /<mjml>[\s\S]*<\/mjml>/;
     const match = result.output_text.match(regex);

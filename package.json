@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -16,9 +16,11 @@
     "mjml-browser": "^4.15.3",
     "next": "15.4.6",
     "openai": "^5.12.2",
+    "playwright": "^1.54.2",
     "probe-image-size": "^7.2.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "uglify-js": "^3.19.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {
