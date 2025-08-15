@@ -25,7 +25,7 @@ export async function renderEmailToPng(mjml: string) {
         viewport: { width: 600, height: 2000} // tweak as needed
     });
 
-    console.log("[renderEmailToPng] page", page);
+    // console.log("[renderEmailToPng] page", page);
     // Inject a base URL so root-relative assets like /uploads/* resolve correctly
     const baseHref = '<base href="http://localhost:3000/">';
     if (/<head[^>]*>/i.test(html)) {
@@ -37,20 +37,17 @@ export async function renderEmailToPng(mjml: string) {
     }
 
     // Load your email markup directly (no network flakiness)
-    await page.setContent(html, { waitUntil: 'networkidle' });
-    console.log("[renderEmailToPng] page set content");
+    await page.setContent(html, { waitUntil: 'networkidle' }); 
 
     // Ensure fonts are loaded before capture
-    await page.evaluate(() => (document as any).fonts?.ready);
-    console.log("[renderEmailToPng] page fonts ready");
+    await page.evaluate(() => (document as any).fonts?.ready); 
 
     // Ensure body is visible before capturing
     await page.waitForSelector('body', { state: 'visible' });
     
     // Try to screenshot a specific container if present; otherwise fallback to full page
     const email = page.locator('#email');
-    const emailCount = await email.count();
-    console.log("[renderEmailToPng] email count", emailCount);
+    const emailCount = await email.count(); 
     let buffer: Buffer;
     if (emailCount > 0) {
         buffer = await email.first().screenshot({ type: 'png', timeout: 5000 });
@@ -58,15 +55,11 @@ export async function renderEmailToPng(mjml: string) {
         buffer = await page.screenshot({ type: 'png', fullPage: true });
     }
 
-    console.log("[renderEmailToPng] buffer", buffer);
     await browser.close();
 
     // If you want base64 for an LLM multipart upload:
     const b64 = buffer.toString('base64');
-    fs.writeFileSync('email.png', buffer);
 
-    // save html to file
-    console.log('[renderEmailToPng] saved file');
 
     return { buffer, base64: b64 };
 }
