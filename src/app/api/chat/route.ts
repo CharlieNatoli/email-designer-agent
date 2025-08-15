@@ -8,6 +8,7 @@ import { draftMarketingEmail } from '@/tools/DraftMarketingEmail';
 import { readAllImageInfo, formatImageInfoForSystemPrompt } from '@/lib/imageInfo';
 
 import { convertToModelMessages } from 'ai';
+import { critiqueEmail } from '@/tools/CritiqueEmail';
 
 
 export const runtime = 'nodejs';
@@ -41,10 +42,20 @@ export async function POST(request: Request) {
           return result;
         },
       },
+      CritiqueEmail: {
+        description: 'Critique a marketing email',
+        inputSchema: z.object({
+          optional_instructions: z.string().optional().describe("add any optional instructions here"),
+        }),
+        execute: async ({ optional_instructions }) => {
+          const result = await critiqueEmail(optional_instructions, modelMessages);
+          return result;
+        },
+      },
     },
   });
 
-  
+
 
   // Return a simple text stream suitable for manual client consumption
   return result.toUIMessageStreamResponse();

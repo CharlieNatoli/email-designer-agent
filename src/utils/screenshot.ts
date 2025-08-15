@@ -3,6 +3,7 @@ export const runtime = 'nodejs';
 
 import { chromium } from 'playwright';
 import fs from 'node:fs';  
+import { v4 as uuidv4 } from 'uuid';
  
 
 export async function renderEmailToPng(mjml: string) {
@@ -59,6 +60,9 @@ export async function renderEmailToPng(mjml: string) {
 
     // If you want base64 for an LLM multipart upload:
     const b64 = buffer.toString('base64');
+
+    // save html to /public/screenshots/email.png
+    fs.writeFileSync(`/public/screenshots/${uuidv4()}.png`, buffer);
 
 
     return { buffer, base64: b64 };

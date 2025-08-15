@@ -1,11 +1,9 @@
 
 import { OpenAI } from "openai";
-import { readAllImageInfo, formatImageInfoForSystemPrompt } from "@/lib/imageInfo";
-import { renderEmailToPng } from "@/utils/screenshot";
-
+import { readAllImageInfo, formatImageInfoForSystemPrompt } from "@/lib/imageInfo"; 
  
-export async function draftMarketingEmail(brief: string) {
 
+export async function draftMarketingEmail(brief: string) {
 
     const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY});
     
@@ -131,7 +129,8 @@ export async function draftMarketingEmail(brief: string) {
         return match[0];
     } else {
         console.log("No match found");
-        return null;
+        return '';
     }
-
 }
+
+
