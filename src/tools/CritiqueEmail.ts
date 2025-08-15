@@ -100,13 +100,16 @@ GOOD: "Demos, treats, prizes"
 </critical-fixes-in-order>
 
 <output-format>
-1. IDENTIFIED ISSUES (list up to 10 with severity 1-5):
-    - List only the key issues. If there are no major issues, just say "No major issues found."
-    - Issue: [description] | Severity: [1-5] | Fix: [what you'll do]
-
-2. FIXED MJML: 
-   Output complete MJML with ALL fixes applied
-   Include comments before each fix: <!-- FIX: [explanation] -->
+{
+    "issues": [
+        {
+            "issue": "Issue description",
+            "severity": "1-5",
+            "fix": "What you'll do"
+        }
+    ],
+    "fixedMJML": " Output complete MJML with ALL fixes applied. Include comments before each fix: <!-- FIX: [explanation] -->"
+}
 </output-format>
  
 `
@@ -135,8 +138,8 @@ export async function getEmailCritique(base64: string, mjml: string) {
         }], 
     });
     
-    console.log("[critiqueEmail] result", result.output_text);
-    return result.output_text;
+    console.log("[critiqueEmail] result", JSON.parse(result.output_text));
+    return JSON.parse(result.output_text);
 
 
 }
@@ -167,7 +170,7 @@ export async function critiqueEmail(optional_instructions: string, modelMessages
 
         const critique = await getEmailCritique(base64, lastMarketingMessageOutput);
 
-        console.log("[draftMarketingEmail] critique", critique);
+        console.log("[draftMarketingEmail] critique issues", critique.issues);
 
         return critique;
 

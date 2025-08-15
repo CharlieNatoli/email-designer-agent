@@ -11,7 +11,7 @@ import {
 
 import ChatInput from "./components/ChatInput";
 import MessageBubble from "./components/MessageBubble";
-import DraftMarketingEmailTool from "@/tools/DraftMarketingEmailDisplay";
+import DraftMarketingEmailToolDisplay from "@/tools/DraftMarketingEmailDisplay";
 import ImageSidebar from "./components/ImageSidebar";
 
 export default function Home() {
@@ -69,7 +69,7 @@ export default function Home() {
                       return <MessageBubble role={m.role}>{p.text}</MessageBubble>
                     }
                     if (p.type === "tool-DraftMarketingEmail") {
-                      return <DraftMarketingEmailTool status={p.state} result={p.output} />
+                      return <DraftMarketingEmailToolDisplay status={p.state} result={p.output} />
                     } 
                   }) 
                 }
