@@ -153,7 +153,7 @@ export async function critiqueEmail(optional_instructions: string, modelMessages
     const draftMarketingEmailResults = (modelMessages as any[])
         .filter(message => message.role === "tool")
         .flatMap(message => message.content)
-        .filter(contentItem => contentItem.type === "tool-result" && contentItem.toolName === "DraftMarketingEmail");
+        .filter(contentItem => contentItem.type === "tool-result" && (contentItem.toolName === "DraftMarketingEmail" || contentItem.toolName === "CritiqueEmail"));
 
     // 
 

@@ -12,7 +12,8 @@ import {
 import ChatInput from "./components/ChatInput";
 import MessageBubble from "./components/MessageBubble";
 import DraftMarketingEmailToolDisplay from "@/tools/DraftMarketingEmailDisplay";
-import ImageSidebar from "./components/ImageSidebar";
+import CritiqueEmailToolDisplay from "@/tools/CritiqueEmailToolDisplay";
+import ImageSidebar from "./components/ImageSidebar"; 
 
 export default function Home() {
   const listRef = useRef<HTMLDivElement | null>(null);  
@@ -71,6 +72,9 @@ export default function Home() {
                     if (p.type === "tool-DraftMarketingEmail") {
                       return <DraftMarketingEmailToolDisplay status={p.state} result={p.output} />
                     } 
+                    if (p.type === "tool-CritiqueEmail") {
+                      return <CritiqueEmailToolDisplay status={p.state} result={p.output} />
+                    }
                   }) 
                 }
               </div> 
