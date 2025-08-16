@@ -5,6 +5,8 @@ import EmailDraftInProgressNotice from "@/app/components/EmailDraftInProgressNot
 import OpenPreviewButton from "@/app/components/OpenPreviewButton";
 import PreviewDrawer from "@/app/components/PreviewDrawer";
 import { useCompiledMjml, usePreviewDrawer } from "@/app/components/ToolDisplayBase";
+import HtmlPreviewTab from "@/app/components/tabs/HtmlPreviewTab";
+import MjmlCodeTab from "@/app/components/tabs/MjmlCodeTab";
 
 // MJML is compiled from a full MJML document string returned by the tool
 
@@ -31,9 +33,16 @@ export default function DraftMarketingEmailToolDisplay({ status, result }: Props
   return (
     <>
       <OpenPreviewButton onOpen={() => { if (compiled) open(); }} disabled={!compiled} />
-      <PreviewDrawer isOpen={Boolean(isOpen && compiled)} onClose={close} title="Preview">
-        {compiled}
-      </PreviewDrawer>
+      <PreviewDrawer
+        isOpen={Boolean(isOpen && compiled)}
+        onClose={close}
+        title="Preview"
+        tabs={[
+          { id: "preview", label: "Preview", content: <HtmlPreviewTab compiledHtml={compiled} /> },
+          ...(mjmlString ? [{ id: "mjml", label: "MJML", content: <MjmlCodeTab mjml={mjmlString} /> }] : []),
+        ]}
+        initialTabId="preview"
+      />
     </>
   );
 }

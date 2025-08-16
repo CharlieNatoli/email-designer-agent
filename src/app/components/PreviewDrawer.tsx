@@ -1,17 +1,29 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+
+export type PreviewTab = {
+  id: string;
+  label: string;
+  content: ReactNode;
+};
 
 type PreviewDrawerProps = {
   isOpen: boolean;
   title?: string;
   onClose: () => void;
-  children: ReactNode;
+  tabs: PreviewTab[];
+  initialTabId?: string;
 };
 
-export default function PreviewDrawer({ isOpen, title = "Preview", onClose, children }: PreviewDrawerProps) {
+export default function PreviewDrawer({ isOpen, title = "Preview", onClose, tabs, initialTabId }: PreviewDrawerProps) {
+  const firstTabId = useMemo(() => tabs[0]?.id, [tabs]);
+  const [activeTabId, setActiveTabId] = useState<string>(initialTabId && tabs.some(t => t.id === initialTabId) ? initialTabId : firstTabId);
+
   if (!isOpen) return null;
+  const active = tabs.find((t) => t.id === activeTabId) ?? tabs[0];
+
   return createPortal(
     <div
       style={{
@@ -45,8 +57,30 @@ export default function PreviewDrawer({ isOpen, title = "Preview", onClose, chil
           Close
         </button>
       </div>
+      <div style={{ borderBottom: "1px solid #eee", padding: 8, display: "flex", gap: 8 }}>
+        {tabs.map((t) => {
+          const isActive = t.id === activeTabId;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setActiveTabId(t.id)}
+              style={{
+                background: isActive ? "#111" : "#e5e7eb",
+                color: isActive ? "#fff" : "#111",
+                border: "none",
+                borderRadius: 6,
+                padding: "6px 10px",
+                cursor: "pointer",
+                fontSize: 13,
+              }}
+            >
+              {t.label}
+            </button>
+          );
+        })}
+      </div>
       <div style={{ overflow: "auto", padding: 16, background: "#f8f8f8" }}>
-        <div style={{ maxWidth: 640, margin: "0 auto" }}>{children}</div>
+        <div style={{ maxWidth: 640, margin: "0 auto" }}>{active?.content}</div>
       </div>
     </div>,
     document.body

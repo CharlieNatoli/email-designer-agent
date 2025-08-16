@@ -5,6 +5,9 @@ import EmailDraftInProgressNotice from "@/app/components/EmailDraftInProgressNot
 import OpenPreviewButton from "@/app/components/OpenPreviewButton";
 import PreviewDrawer from "@/app/components/PreviewDrawer";
 import { useCompiledMjml, usePreviewDrawer } from "@/app/components/ToolDisplayBase";
+import HtmlPreviewTab from "@/app/components/tabs/HtmlPreviewTab";
+import IssuesTab from "@/app/components/tabs/IssuesTab";
+import MjmlCodeTab from "@/app/components/tabs/MjmlCodeTab";
 
 type CritiqueResult = {
   issues: Array<{ issue: string; severity: string; fix: string }>;
@@ -19,8 +22,8 @@ type Props = {
 export default function CritiqueEmailToolDisplay({ status, result }: Props) {
   const instanceId = useId();
   const { isOpen, open, close } = usePreviewDrawer(instanceId);
-  const compiledFixed = useCompiledMjml(result?.fixedMJML ?? null);
-  const [activeTab, setActiveTab] = useState<"issues" | "fixed">("issues");
+  const fixedMjml = result?.fixedMJML ?? null;
+  const compiledFixed = useCompiledMjml(fixedMjml);
 
   const issuesText = useMemo(() => {
     if (!result?.issues?.length) return "No issues detected.";
@@ -38,60 +41,17 @@ export default function CritiqueEmailToolDisplay({ status, result }: Props) {
   return (
     <>
       <OpenPreviewButton onOpen={() => { if (canOpen) open(); }} disabled={!canOpen} label="Email critique ready" />
-      <PreviewDrawer isOpen={Boolean(isOpen && canOpen)} onClose={close} title="Preview">
-        <div style={{ display: "flex", gap: 8, paddingBottom: 8 }}>
-          <button
-            onClick={() => setActiveTab("issues")}
-            style={{
-              background: activeTab === "issues" ? "#111" : "#e5e7eb",
-              color: activeTab === "issues" ? "#fff" : "#111",
-              border: "none",
-              borderRadius: 6,
-              padding: "6px 10px",
-              cursor: "pointer",
-              fontSize: 13,
-            }}
-          >
-            Issues
-          </button>
-          <button
-            onClick={() => setActiveTab("fixed")}
-            style={{
-              background: activeTab === "fixed" ? "#111" : "#e5e7eb",
-              color: activeTab === "fixed" ? "#fff" : "#111",
-              border: "none",
-              borderRadius: 6,
-              padding: "6px 10px",
-              cursor: "pointer",
-              fontSize: 13,
-            }}
-          >
-            Fixed email
-          </button>
-        </div>
-
-        {activeTab === "issues" ? (
-          <textarea
-            readOnly
-            value={issuesText}
-            style={{
-              width: "100%",
-              minHeight: 280,
-              border: "1px solid #e5e7eb",
-              borderRadius: 8,
-              padding: 12,
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-              fontSize: 13,
-              lineHeight: "18px",
-              background: "#fff",
-              color: "#111",
-              whiteSpace: "pre-wrap",
-            }}
-          />
-        ) : (
-          <div>{compiledFixed}</div>
-        )}
-      </PreviewDrawer>
+      <PreviewDrawer
+        isOpen={Boolean(isOpen && canOpen)}
+        onClose={close}
+        title="Preview"
+        tabs={[
+          { id: "issues", label: "Issues", content: <IssuesTab issuesText={issuesText} /> },
+          { id: "fixed", label: "Fixed email", content: <HtmlPreviewTab compiledHtml={compiledFixed} /> },
+          ...(fixedMjml ? [{ id: "mjml", label: "MJML", content: <MjmlCodeTab mjml={fixedMjml} /> }] : []),
+        ]}
+        initialTabId="issues"
+      />
     </>
   );
 }

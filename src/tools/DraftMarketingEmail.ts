@@ -2,6 +2,23 @@
 import { OpenAI } from "openai";
 import { readAllImageInfo, formatImageInfoForSystemPrompt } from "@/lib/imageInfo"; 
  
+const layoutsToConsider = `
+Section layouts to consider:
+    1. Full-width section with image background
+        If you have an image with no text overlaid, you could use it as a background and put text or CTAs over it. 
+        If you do this, use the following attributes on the mj-section:
+        background-size="contain" - scales the whole image into the container without cropping.
+        background-repeat="no-repeat" - stops tiling.
+        background-position="center center" - centers it both vertically and horizontally.
+        Also, consider where the text should go on the image and how to make sure it's readable. For example, if the top of the image is a light blue sky, maybe have darker text or a color like red or orange that contrasts well. 
+    2. Zigzag layout
+        If you have multiple product images, you could use a zigzag layout to display them.
+        use multiple mj-sections with the columns each. Alternate having image on the left and text on the right, or vice versa.
+        To spruce this up even more, consider adding buttons in each section, or having a section background color that matches the image. 
+    3. Grid layout 
+        Similar to the zigzag layout, but with a grid of images. 
+        You could ovelay buttons on top of each image by setting the background-image of each mj-column, or you could just have the plain images for a simpler but chic look. `
+
 
 export async function draftMarketingEmail(brief: string) {
 
@@ -51,23 +68,8 @@ export async function draftMarketingEmail(brief: string) {
     </images-available>
 
     <design-guidelines>
-    Section layouts to consider:
-    1. Full-width section with image background
-        If you have an image with no text overlaid, you could use it as a background and put text or CTAs over it. 
-        If you do this, use the following attributes on the mj-section:
-        background-size="contain" - scales the whole image into the container without cropping.
-        background-repeat="no-repeat" - stops tiling.
-        background-position="center center" - centers it both vertically and horizontally.
-        Also, consider where the text should go on the image and how to make sure it's readable. For example, if the top of the image is a light blue sky, maybe have darker text or a color like red or orange that contrasts well. 
-    2. Zigzag layout
-        If you have multiple product images, you could use a zigzag layout to display them.
-        use multiple mj-sections with the columns each. Alternate having image on the left and text on the right, or vice versa.
-        To spruce this up even more, consider adding buttons in each section, or having a section background color that matches the image. 
-    3. Grid layout 
-        Similar to the zigzag layout, but with a grid of images. 
-        You could ovelay buttons on top of each image by setting the background-image of each mj-column, or you could just have the plain images for a simpler but chic look. 
     
-    Design guidelines:
+    General guidelines:
     - Be creative and bold with layouts, visuals, and typography while staying on-brand.
     - Include clear, actionable CTAs using compelling text.
     - Make the primary CTA prominent and near the top; add secondary CTAs if there are multiple actions the reader can take.

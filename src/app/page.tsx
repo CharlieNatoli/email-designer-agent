@@ -67,7 +67,7 @@ export default function Home() {
               <div key={m.id} style={{ marginBottom: 12 }}>
                 {m.parts?.map((p: any) => {
                     if (p.type === "text") {
-                      return <MessageBubble role={m.role}>{p.text}</MessageBubble>
+                      return <MessageBubble role={m.role} key={p.id}>{p.text}</MessageBubble>
                     }
                     if (p.type === "tool-DraftMarketingEmail") {
                       return <DraftMarketingEmailToolDisplay status={p.state} result={p.output} />
