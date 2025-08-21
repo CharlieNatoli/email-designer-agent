@@ -9,9 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.5",
     "@ai-sdk/openai": "^2.0.11",
     "@ai-sdk/react": "^2.0.11",
     "ai": "^5.0.11",
+    "ijavascript": "^5.2.1",
     "mjml": "^4.15.3",
     "mjml-browser": "^4.15.3",
     "next": "15.4.6",

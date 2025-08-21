@@ -6,113 +6,29 @@ import { OpenAI } from "openai";
 const critiqueEmailSystemPrompt = `
 You are reviewing MJML email code that was written by an AI assistant. There are a few factors that could have caused problems.
 
-
 <context>
-The AI that created this email:
-- Cannot see actual image dimensions or aspect ratios, which sometimes leads to images where the padding or placement of the image looks off. 
-- Cannot see how text contrasts against image backgrounds, which sometimes leads to text that is hard to read.
-- Cannot preview spacing between elements, which sometimes leads to elements that are too close together.
-- Tends to write too much copy. 
-- Cannot see how text will look, sometimes leading to too much whitespace, or boring-looking text.
-
-Your job:
-- Suggest MJML code changes to fix these problems. Your goal is to make the email look more professional and polished.
+The AI that created this email can only create it by wriiting MJML code, so it may end up with cases where visual elements look odd due to sizing. 
 </context>
 
-<critical-fixes-in-order>
-
-1. IMAGE OVERLAY TEXT FIXES
-Check EVERY instance of text over images:
-
-PROBLEM: Text overlaid on images that already have text
-FIXES:
-- remove text overlay altogether. 
-- add some text below the image, if there isn't a clear CTA on the image iteself. 
-
-PROBLEM: Text overlaid on images has insufficient contrast.
-FIXES:
-- make text larger
-- move text to another location on the image that better contrasts with the background. 
-- add a background color to the text.
-- add a semi-transparent dark overlay (background-color="rgba(0,0,0,0.6)")  
-
-Safe approach: When in doubt, NEVER overlay text on product/lifestyle images.
-
-2. IMAGE DIMENSION FIXES
-Check EVERY image placement:
-
-TOO MUCH WHITE SPACE AROUND IMAGES:
-- if image in column has too much white space above or below, reduce size of other columns (eg. reduce text size)
-- if image in column is too wide/landscape oriented, move to full-width section
-- if image has too much padding and looks too small, remove padding
-
-3. HERO/HEADER FIXES
-Check the first section:
-
-BAD: Small image, thin image, or text-heavy hero
-GOOD: Large image OR bold text (pick one, not both)
-
-If hero has image + lots of text:
-- Remove the text, keep image OR
-- Remove the image, make text bigger (font-size="48px")
-
-Safe hero template:
-<mj-section padding="0">
-  <mj-column>
-    <mj-image src="/uploads/[hero-image]" padding="0" />
-    <mj-text font-size="24px" padding="20px">[5 words max]</mj-text>
-    <mj-button>[CTA - 3 words]</mj-button>
-  </mj-column>
-</mj-section>
-
-4. SPACING EMERGENCY FIXES
-Add padding between ALL adjacent elements:
-
-BUTTONS: 
-- Never put 2 buttons in same section without padding
-- Add padding="10px" minimum to all buttons
-- If 2 CTAs near each other → padding="20px" between
- 
-5. COPY LENGTH FIXES
-Ruthlessly cut text:
-
-HERO: Maximum 8 words total
-SECTION HEADERS: Maximum 5 words
-BODY TEXT: Maximum 20 words per block
-DESCRIPTIONS: Delete entirely if image shows the product
-
-Apply this reduction:
-- Count words in each text block
-- If >20 words → Cut to first sentence only
-- If describing what's visible in image → Delete
-- If "marketing fluff" → Delete
-
-Examples:
-BAD: "Discover our amazing collection of handcrafted quilts made with love"
-GOOD: "Handcrafted quilts"
-
-BAD: "Join us for an exclusive event where you'll enjoy demos, treats, and prizes"  
-GOOD: "Demos, treats, prizes"
-
-6. COPY FORMATTING: 
-- If text looks too boring, add new colors, fonts, spacing, etc. 
-- If there's too much whitespace, add padding or font size.  
-</critical-fixes-in-order>
+<guidelines> 
+- List any areas where the email's visual layout looks odd, such as poor contrast, or weird spacing, or text that's cut off in a strange place. 
+- Each suggestion should refer to one specific section of the email. 
+- Suggest MJML code changes to fix these problems.  
+- Stay witin the creator's original intent. Your goal is only to fix mistakes. 
+</guidelines>
 
 <output-format>
 {
     "issues": [
         {
-            "issue": "Issue description",
+            "issue": "Mistake / issue description",
             "severity": "1-5",
-            "fix": "What you'll do"
+            "fix": "What you'll do. Explain the exact MJML code changes you'd make."
         }
     ],
     "fixedMJML": " Output complete MJML with ALL fixes applied. Include comments before each fix: <!-- FIX: [explanation] -->"
 }
-</output-format>
- 
-`
+</output-format>`
 
 
 export async function getEmailCritique(base64: string, mjml: string) {
@@ -127,7 +43,7 @@ export async function getEmailCritique(base64: string, mjml: string) {
             content: [
                 { 
                     type: "input_text", 
-                    text: "Please critique the following email design. Here is the MJML:\n" + mjml  
+                    text: mjml  
                 },
                 {
                     type: "input_image",

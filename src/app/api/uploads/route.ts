@@ -13,6 +13,23 @@ export const dynamic = "force-dynamic";
 const uploadsDir = path.join(process.cwd(), "public", "uploads");
 const infoDir = path.join(process.cwd(), "public", "image_info");
 
+const imageContentsPrompt = `
+Describe the image's composition and layout using factual, non-decorative language.
+
+Structure your description as follows:
+1. State the overall format (e.g., "Single photograph", "Split layout with photo and text panel", "Grid of items", "Text overlay on image")
+2. List each distinct zone/section with its position (left, right, top, bottom, center, quadrant)
+3. For each zone, identify what it contains:
+   - Photography: State subject matter only (e.g., "green cake", "group of people", "boats")
+   - Text elements: Note presence and hierarchy (e.g., "heading text", "body copy", "button labeled X")
+   - Graphics: Logos, badges, icons, borders
+   - Colors: Mention if they define zones (e.g., "[COLOR] background panel") or typograpy ("[COLOR] text with [COLOR] shadow")
+
+Use simple nouns without adjectives. Focus on spatial relationships.
+Example: "Split layout. Left half: photograph of fishing boats. Right half: white panel with heading text at top, paragraph text in middle, orange button at bottom."
+
+Do NOT use descriptive adjectives like beautiful, vibrant, elegant, stunning, etc.`
+
 async function ensureUploadsDir() {
 	try {
 		await fs.mkdir(uploadsDir, { recursive: true });
@@ -86,10 +103,10 @@ export async function POST(req: NextRequest) {
 			try {
 				const base64 = `data:${value.type || 'image/*'};base64,${buffer.toString('base64')}`;
 				const extractSchema = z.object({
-					image_contents: z.string().min(1).max(300).optional(),
-					text: z.string().max(2000).optional(),
-					image_good_for: z.array(z.enum(["banner","product photography","lifestyle photography","background","section heading","other"])).min(1).max(2).optional(),
-					suggested_alt_text: z.string().min(3).max(200).optional(),
+					image_contents: z.string().min(1).max(300).describe(imageContentsPrompt),
+					overlay_text: z.string().max(2000).describe("Quote any visible text overlaid on the image."),
+					image_good_for: z.array(z.enum(["banner","hero image","product photography","lifestyle photography","background","section heading","other"])).min(1).max(2).describe("A list of tags that describe the image's purpose."),
+					suggested_alt_text: z.string().min(3).max(200).describe("Concise single-sentence alt text."),
 				});
 				const analysis = await generateObject({
 					model: openai('gpt-4o'),

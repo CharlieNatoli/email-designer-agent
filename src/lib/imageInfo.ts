@@ -7,8 +7,8 @@ export type ImageInfo = {
   width?: number;
   height?: number;
   image_contents?: string;
-  text?: string;
-  image_good_for?: ("banner" | "product photography" | "lifestyle photography" | "background" | "section heading" | "other")[];
+  overlay_text?: string;
+  image_good_for?: ("banner" | "hero image" | "product photography" | "lifestyle photography" | "background" | "section heading" | "other")[];
   suggested_alt_text?: string;
 };
 
@@ -36,11 +36,28 @@ export async function readAllImageInfo(): Promise<ImageInfo[]> {
 export function formatImageInfoForSystemPrompt(infos: ImageInfo[]): string {
   if (!infos.length) return "No uploaded images yet.";
   const parts = infos.map((i) => {
-    const tags = i.image_good_for && i.image_good_for.length ? `tags: ${i.image_good_for.join(', ')}` : "tags: none";
-    const dims = i.width && i.height ? `${i.width}x${i.height}` : "unknown size";
-    return `- image_filename: ${i.filename}, size: ${dims}, contents: ${i.image_contents ?? 'n/a'}, text: ${i.text ?? 'n/a'}, ${tags}, suggested_alt_text: ${i.suggested_alt_text ?? 'n/a'}`;
+    const attributes = Object.entries(i)
+      .map(([key, value]) => {
+        let formatted: string;
+        if (value === undefined || value === null) {
+          formatted = "n/a";
+        } else if (Array.isArray(value)) {
+          formatted = value.join(", ");
+        } else if (typeof value === "object") {
+          try {
+            formatted = JSON.stringify(value as unknown);
+          } catch {
+            formatted = String(value);
+          }
+        } else {
+          formatted = String(value);
+        }
+        return `${key}: ${formatted}`;
+      });
+
+    return `- ${attributes.join(", ")}`;
   });
-  return `Available uploaded images (use image_filename to reference images):\n${parts.join('\n')}`;
+  return `Available uploaded images (use filename to reference images):\n${parts.join('\n')}`;
 }
 
 
