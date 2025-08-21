@@ -19,14 +19,7 @@ type Props = {
 export default function DraftMarketingEmailToolDisplay({ status, output, text }: Props) {
   const instanceId = useId();
   const { isOpen, open, close } = usePreviewDrawer(instanceId);
-  const mjmlString = typeof output === "string" ? output : text;
-  const compiled = useCompiledMjml(mjmlString);
-
-  console.log("[DraftMarketingEmailTool] status", status);
-  console.log("[DraftMarketingEmailTool] result", output);
-  console.log("[DraftMarketingEmailTool] text", text);
-
-  
+  const mjmlString = typeof output === "string" ? output : "text";
 
   if (status === "input-available") {
     return <EmailDraftInProgressNotice />;
@@ -35,13 +28,13 @@ export default function DraftMarketingEmailToolDisplay({ status, output, text }:
   // completed
   return (
     <>
-      <OpenPreviewButton onOpen={() => { if (compiled) open(); }} disabled={!compiled} />
+      <OpenPreviewButton onOpen={() => open()} disabled={false} />
       <PreviewDrawer
-        isOpen={Boolean(isOpen && compiled)}
+        isOpen={Boolean(isOpen)}
         onClose={close}
         title="Preview"
         tabs={[
-          { id: "preview", label: "Preview", content: <HtmlPreviewTab compiledHtml={compiled} /> },
+          { id: "preview", label: "Preview", content: <HtmlPreviewTab compiledHtml={output} /> },
           ...(mjmlString ? [{ id: "mjml", label: "MJML", content: <MjmlCodeTab mjml={mjmlString} /> }] : []),
         ]}
         initialTabId="preview"

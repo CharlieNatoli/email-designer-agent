@@ -29,23 +29,23 @@ General guidelines:
 </final-output-format>`
 
 
-export async function draftMarketingEmail(brief: string) {
+// export async function draftMarketingEmail(brief: string) {
 
-    console.log("[draftMarketingEmail] description", brief);
-    const imageInfos = await readAllImageInfo();
-    const imageContext = formatImageInfoForSystemPrompt(imageInfos);
+//     console.log("[draftMarketingEmail] description", brief);
+//     const imageInfos = await readAllImageInfo();
+//     const imageContext = formatImageInfoForSystemPrompt(imageInfos);
  
-    const { response } = streamText({
-        model: anthropic('claude-sonnet-4-20250514'),
-        //        model: anthropic('claude-opus-4-1-20250805'),
-        prompt: draftMarketingEmailSystemPrompt
-      });
+//     const { response } = streamText({
+//         model: anthropic('claude-sonnet-4-20250514'),
+//         //        model: anthropic('claude-opus-4-1-20250805'),
+//         prompt: draftMarketingEmailSystemPrompt
+//       });
 
-    console.log("[draftMarketingEmail] response", response);
+//     console.log("[draftMarketingEmail] response", response);
     
 
-    return response;
+//     return response;
 
-}
+// }
 
 

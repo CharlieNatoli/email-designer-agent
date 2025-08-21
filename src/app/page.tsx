@@ -23,7 +23,7 @@ export type StepChunk = {
   parts: Part[];          // parts between this step-start and the next step-start
 };
 
-export function splitByStepStart(parts: Part[]): StepChunk[] {
+export function splitByStepStart(parts: Part[]): StepChunk[] { 
   const steps: StepChunk[] = [];
   let current: StepChunk | null = null;
 
@@ -52,54 +52,56 @@ export function splitByStepStart(parts: Part[]): StepChunk[] {
 const messageRenderer = ( m: any) => {
 
   // only log the last message
-   console.log("MESSAGE", m); 
+   console.log("MESSAGE", m.parts.length); 
 
-  const steps = splitByStepStart(m.parts);
-  console.log("STEPS", steps);
+  // const steps = splitByStepStart(m.parts);
+  // console.log("STEPS", steps.length, steps);
 
-  return <><br></br><br></br><div key={m.id} >  {JSON.stringify(m.parts, null, 2)}</div></>
+  // return one div for each step
+  return (
+    <div key={m.id}>
+      <br></br>
+      <br></br>
+      {m.parts?.map((part: any) => { 
 
-  // return  <div key={m.id} >{m.parts}</div>
+        if (part.type === 'text') {
+          return <MessageBubble role={m.role} key={"text-" + part.id}>
+            {part.text}
+          </MessageBubble>
+        } else if (part.type === 'tool-DraftMarketingEmail' && part.state === 'output-available') {
+          return <div  key={"tool-DraftMarketingEmail-top" + part.id}  >
+             <DraftMarketingEmailToolDisplay 
+                key ={"tool-DraftMarketingEmail" + part.id} 
+                status={part.state} 
+                output={part.output} 
+                text={undefined} 
+              /> 
+              {JSON.stringify(part, null, 2)} 
+          </div>
+        } else if (part.type === 'data-tool-run' && part.data?.status === 'streaming') {
+          return (
+            <div key={"tool-DraftMarketingEmail-other" + part.id}> 
+              <DraftMarketingEmailToolDisplay 
+                key ={"tool-DraftMarketingEmail" + part.id} 
+                status={part.state} 
+                output={undefined} 
+                text={part.data?.text} 
+              /> 
+              <div> STEP {part.index} </div> 
+              <div key={part.index}> {JSON.stringify(part, null, 2)} </div>
+            </div>
+        )
 
+        }
 
-  
-  // return (
-  //   <div key={m.id} style={{ marginBottom: 12 }}>
-  //     {steps?.map((step: any) => {
-  //       console.log("STEP", step);
-
-  //       return (
-  //         <div key={step.index}> 
-  //         {step}
-  //         </div>
-  //       )
-  //     })}
-  //   </div>
-  // );
+        
+      })}
+    </div>
+  )
+ 
 }
 
-      
-        // const messageText = step.parts?.filter((p: any) => p.type === 'text').map((p: any)  => p.text).join('');
-        // const dataToolText = step.parts?.filter((p: any) => p.type === 'data-tool-run').map((p: any)  => p.data?.text).join('');
-        // const output = s.parts?.filter((p: any) => p.type === 'tool-DraftMarketingEmail').map((p: any)  => p.output).join('');
-        // const status = s.parts?.filter((p: any) => p.type === 'tool-DraftMarketingEmail').map((p: any)  => p.state).join('');
-        //   if (messageText) {
-        //     return <MessageBubble role={m.role} key={p.id + m.id}>
-        //       {messageText}
-        //     </MessageBubble>
-        //   }
-        //   if (p.type === "tool-DraftMarketingEmail" || (p.type === "data-tool-run" && p.data?.status === "streaming")) {
-        //     console.log("TOOL-DRAFT-MARKETING-EMAIL", p);
-        //     return <DraftMarketingEmailToolDisplay 
-        //       key ={"tool-DraftMarketingEmail" + m.id} 
-        //       status={p.state} 
-        //       output={output} 
-        //       text={dataToolText} 
-        //       />
-        //   }  
-        // }
-    
-
+       
 
 export default function Home() {
   const [input, setInput] = useState('');
@@ -109,8 +111,7 @@ export default function Home() {
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: '/api/chat',
-    }),
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    }), 
 
   }); 
 
