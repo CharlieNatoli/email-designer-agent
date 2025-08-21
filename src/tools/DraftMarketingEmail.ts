@@ -4,18 +4,12 @@ import { streamText, generateText } from 'ai';
 
 import { readAllImageInfo, formatImageInfoForSystemPrompt } from "@/lib/imageInfo"; 
 
-export async function draftMarketingEmail(brief: string) {
-
-    console.log("[draftMarketingEmail] description", brief);
-    const imageInfos = await readAllImageInfo();
-    const imageContext = formatImageInfoForSystemPrompt(imageInfos);
-
-    const systemPrompt = `You are a creative email design bot. Your job is to draft marketing emails that will be reviewed by a human marketing designer. 
+export const draftMarketingEmailSystemPrompt = `You are a creative email design bot. Your job is to draft marketing emails that will be reviewed by a human marketing designer. 
 These emails should fit well into the company's brand style, but also be unique and interesting. The goal is to give new ideas to the marketing team that they can take inspiration from. 
  
 <images-available>
 You can use any of the uploaded images listed below in the email you design.
-${imageContext}
+{imageContext}
 
 Rules for using images:
 - For images, reference the uploaded files by filename from the catalog above.
@@ -34,13 +28,23 @@ General guidelines:
 - Return only the MJML must start with <mjml> and include <mj-body> wrapping the entire email content. Return ONLY the MJML, no other text.
 </final-output-format>`
 
-    const { text } = await generateText({
-        model: anthropic('claude-sonnet-3-5-sonnet-20250620'),
+
+export async function draftMarketingEmail(brief: string) {
+
+    console.log("[draftMarketingEmail] description", brief);
+    const imageInfos = await readAllImageInfo();
+    const imageContext = formatImageInfoForSystemPrompt(imageInfos);
+ 
+    const { response } = streamText({
+        model: anthropic('claude-sonnet-4-20250514'),
         //        model: anthropic('claude-opus-4-1-20250805'),
-        prompt: systemPrompt
+        prompt: draftMarketingEmailSystemPrompt
       });
 
-    return text
+    console.log("[draftMarketingEmail] response", response);
+    
+
+    return response;
 
 }
 

@@ -12,17 +12,20 @@ import MjmlCodeTab from "@/app/components/tabs/MjmlCodeTab";
 
 type Props = {
   status:  "input-streaming" | "call" | "result" | "input-available";
-  result?: string | { emailDraftMJML: string };
+  output?: string ;
+  text?: string;
 };
 
-export default function DraftMarketingEmailToolDisplay({ status, result }: Props) {
+export default function DraftMarketingEmailToolDisplay({ status, output, text }: Props) {
   const instanceId = useId();
   const { isOpen, open, close } = usePreviewDrawer(instanceId);
-  const mjmlString = typeof result === "string" ? result : result?.emailDraftMJML ?? null;
+  const mjmlString = typeof output === "string" ? output : text;
   const compiled = useCompiledMjml(mjmlString);
 
   console.log("[DraftMarketingEmailTool] status", status);
-  console.log("[DraftMarketingEmailTool] result", result);
+  console.log("[DraftMarketingEmailTool] result", output);
+  console.log("[DraftMarketingEmailTool] text", text);
+
   
 
   if (status === "input-available") {

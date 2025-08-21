@@ -1,15 +1,16 @@
-import { streamText, generateText } from 'ai';
+import { createUIMessageStream, streamText, generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
 import {
   DraftToolInputSchema,  
 } from '@/lib/EmailComponents';
-import { draftMarketingEmail } from '@/tools/DraftMarketingEmail';
+import { draftMarketingEmail, draftMarketingEmailSystemPrompt } from '@/tools/DraftMarketingEmail';
 import { readAllImageInfo, formatImageInfoForSystemPrompt } from '@/lib/imageInfo';
 
 import { convertToModelMessages } from 'ai';
 import { critiqueEmail } from '@/tools/CritiqueEmail';
-
+import { createUIMessageStreamResponse } from 'ai';
 
 export const runtime = 'nodejs';
 
@@ -23,47 +24,68 @@ export async function POST(request: Request) {
   const imageInfos = await readAllImageInfo();
   const imageContext = formatImageInfoForSystemPrompt(imageInfos);
 
-  const result = streamText({
-    model: openai('gpt-4o-mini'),
-    system: `You are a creative email designer. Help the customer design an email. Use the DraftMarketingEmail tool to render the email if they ask for one.
-    Also talk to the customer in a friendly and engaging way. After using the DraftMarketingEmail tool, summarize the email in natural language.
-    
-    ${imageContext}
-    `,
-    messages: modelMessages,
-    temperature: 0.7,
-    tools: {
-      DraftMarketingEmail: {
-        description: 'Render a marketing email based on a creative brief',
-        inputSchema: DraftToolInputSchema,
-        execute: async ({ brief }) => {
-          const result = await draftMarketingEmail(brief);
-          // Only return the serializable object for streaming to the client
-          return result;
+  const stream = createUIMessageStream({
+    async execute({ writer }) {
+      const result = streamText({
+        model: openai('gpt-4o-mini'),
+        messages: convertToModelMessages(messages),
+        system: `You are a creative email designer. Help the customer design an email. Use the DraftMarketingEmail tool to render the email if they ask for one.
+        Also talk to the customer in a friendly and engaging way. After using the DraftMarketingEmail tool, summarize the email in natural language.
+        
+        ${imageContext}
+        `,
+        
+        tools: { 
+          DraftMarketingEmail: {
+            description: 'Render a marketing email based on a creative brief',
+            inputSchema: DraftToolInputSchema, 
+            execute: async ({ brief }) => {
+
+              const id = crypto.randomUUID();
+                 // Start: show a persistent progress panel
+                 writer.write({
+                  type: 'data-tool-run',
+                  id,
+                  data: { status: 'starting', text: `Planning: ${brief}\n` },
+                });
+  
+
+              const result =  streamText({
+                model: anthropic('claude-sonnet-4-20250514'),
+                system: draftMarketingEmailSystemPrompt, // TODO - add image context
+                prompt: brief,
+
+            });
+
+              for await (const delta of result.textStream) {
+                writer.write({
+                  type: 'data-tool-run',
+                  id,
+                  data: { status: 'streaming', text: delta },
+                });
+              }
+
+              const final = await result.text;
+
+              writer.write({
+                type: 'data-tool-run',
+                id,
+                data: { status: 'done' },
+              });
+
+           
+              // The tool's formal output (not streamed)
+              return { id, artifact: final };
+            },
+          }, 
         },
-      },
-      CritiqueEmail: {
-        description: 'Critique a marketing email',
-        inputSchema: z.object({
-          optional_instructions: z.string().optional().describe("add any optional instructions here"),
-        }),
-        execute: async ({ optional_instructions }) => {
-          try {
-            const result = await critiqueEmail(optional_instructions, modelMessages);
-            return result;
-          } catch (error) {
-            console.error("[critiqueEmail] error", error);
-            return "Error: " + error;
-          }
-        },
-      },
+      });
+
+      writer.merge(result.toUIMessageStream());
     },
   });
 
-
-
-  // Return a simple text stream suitable for manual client consumption
-  return result.toUIMessageStreamResponse();
+  return createUIMessageStreamResponse({ stream });
 }
 
 
