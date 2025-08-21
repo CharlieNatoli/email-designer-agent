@@ -41,8 +41,9 @@ function MjmlCodeTabInternal({ mjml }: Props) {
         readOnly
         value={mjml}
         style={{
-          width: "100%",
-          minHeight: 280,
+          width: "100%", 
+          height: "100vh",
+          resize: "vertical",
           border: "1px solid #e5e7eb",
           borderRadius: 8,
           padding: 12,

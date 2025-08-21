@@ -5,7 +5,7 @@ import { z } from 'zod';
 import {
   DraftToolInputSchema,  
 } from '@/lib/EmailComponents';
-import { draftMarketingEmail, draftMarketingEmailSystemPrompt } from '@/tools/DraftMarketingEmail';
+import {  draftMarketingEmailSystemPrompt } from '@/tools/DraftMarketingEmail';
 import { readAllImageInfo, formatImageInfoForSystemPrompt } from '@/lib/imageInfo';
 
 import { convertToModelMessages } from 'ai';
