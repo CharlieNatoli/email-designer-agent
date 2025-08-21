@@ -69,20 +69,23 @@ const messageRenderer = ( m: any) => {
             {part.text}
           </MessageBubble>
         } else if (part.type === 'tool-DraftMarketingEmail' && part.state === 'output-available') {
-          return <div  key={"tool-DraftMarketingEmail-top" + part.id}  >
+          return (
+            <div  key={"tool-DraftMarketingEmail-top" + part.id}  >
              <DraftMarketingEmailToolDisplay 
-                key ={"tool-DraftMarketingEmail" + part.id} 
+                key ={"tool-DraftMarketingEmail-display-1" + part.id}
                 status={part.state} 
-                output={part.output} 
+                output={part.output.artifact} 
                 text={undefined} 
               /> 
-              {JSON.stringify(part, null, 2)} 
+              <div> STEP {part.index} </div> 
+              <div key={part.index}> {JSON.stringify(part, null, 2)} </div>
           </div>
+        )
         } else if (part.type === 'data-tool-run' && part.data?.status === 'streaming') {
           return (
             <div key={"tool-DraftMarketingEmail-other" + part.id}> 
               <DraftMarketingEmailToolDisplay 
-                key ={"tool-DraftMarketingEmail" + part.id} 
+                key ={"tool-DraftMarketingEmail-display-1" + part.id} 
                 status={part.state} 
                 output={undefined} 
                 text={part.data?.text} 

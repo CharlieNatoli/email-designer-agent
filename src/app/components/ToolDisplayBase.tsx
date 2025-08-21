@@ -38,7 +38,7 @@ export function usePreviewDrawer(instanceId: string) {
   };
 }
 
-export function useCompiledMjml(mjml: string | null | undefined) {
+export function useCompiledMjml(mjml: string | null ) {
   return useMemo(() => {
     if (!mjml) return null;
     const mjml2html = require("mjml-browser");
