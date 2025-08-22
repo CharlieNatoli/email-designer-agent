@@ -10,7 +10,7 @@ import { readAllImageInfo, formatImageInfoForSystemPrompt } from '@/lib/imageInf
 
 import { convertToModelMessages } from 'ai';
 import { critiqueEmail } from '@/tools/CritiqueEmail';
-import { createUIMessageStreamResponse } from 'ai';
+import { createUIMessageStreamResponse, stepCountIs } from 'ai';
 
 export const runtime = 'nodejs';
 
@@ -78,6 +78,7 @@ export async function POST(request: Request) {
             },
           }, 
         },
+        stopWhen: stepCountIs(10),
       });
 
       writer.merge(result.toUIMessageStream());
