@@ -39,12 +39,10 @@ export function usePreviewDrawer(instanceId: string) {
 }
 
 export function useCompiledMjml(mjml: string | null ) {
-  return useMemo(() => {
     if (!mjml) return null;
     const mjml2html = require("mjml-browser");
     const { html } = mjml2html(mjml);
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
-  }, [mjml]);
 }
 
 

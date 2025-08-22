@@ -44,9 +44,9 @@ export async function POST(request: Request) {
               const id = crypto.randomUUID();
                  // Start: show a persistent progress panel
                  writer.write({
-                  type: 'data-tool-rn',
+                  type: 'data-tool-run',
                   id,
-                  data: { status: 'starting', text: `Planning: ${brief}\n` },
+                  data: {  tool: 'DraftMarketingEmail', status: 'starting', text: `Planning: ${brief}\n` },
                 });
   
 
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
                 writer.write({
                   type: 'data-tool-run',
                   id,
-                  data: { status: 'streaming', text: delta },
+                  data: {  tool: 'DraftMarketingEmail',status: 'streaming', text: delta },
                 });
               }
 
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
               writer.write({
                 type: 'data-tool-run',
                 id,
-                data: { status: 'done' },
+                data: { tool: 'DraftMarketingEmail', status: 'done' , final: final },
               });
 
               // The tool's formal output (not streamed)

@@ -8,7 +8,6 @@ import { useCompiledMjml, usePreviewDrawer } from "@/app/components/ToolDisplayB
 import HtmlPreviewTab from "@/app/components/tabs/HtmlPreviewTab";
 import MjmlCodeTab from "@/app/components/tabs/MjmlCodeTab";
 
-// MJML is compiled from a full MJML document string returned by the tool
 
 type Props = {
   status:  "input-streaming" | "call" | "result" | "input-available";
@@ -19,11 +18,8 @@ type Props = {
 export default function DraftMarketingEmailToolDisplay({ status, output, text }: Props) {
   const instanceId = useId();
   const { isOpen, open, close } = usePreviewDrawer(instanceId);
-  const mjmlString = typeof output === "string" ? output : "text";
 
-  // if text is defined, then we are streaming. in this case, maintain a running text string
-  const [runningText, setRunningText] = useState(text);
-  // const [compiledHtml, setCompiledHtml] = useState("");
+  const [runningText, setRunningText] = useState(text); 
 
   useEffect(() => {
     if (text) {
