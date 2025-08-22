@@ -51,12 +51,6 @@ export function splitByStepStart(parts: Part[]): StepChunk[] {
 
 const messageRenderer = ( m: any) => {
 
-  // only log the last message
-   console.log("MESSAGE", m.parts.length); 
-
-  // const steps = splitByStepStart(m.parts);
-  // console.log("STEPS", steps.length, steps);
-
   // return one div for each step
   return (
     <div key={m.id}>
@@ -76,7 +70,7 @@ const messageRenderer = ( m: any) => {
                 status={part.state} 
                 output={part.output.artifact} 
                 text={undefined} 
-              /> 
+              />  
               <div> STEP {part.index} </div> 
               <div key={part.index}> {JSON.stringify(part, null, 2)} </div>
           </div>
@@ -89,7 +83,8 @@ const messageRenderer = ( m: any) => {
                 status={part.state} 
                 output={undefined} 
                 text={part.data?.text} 
-              /> 
+              />  
+
               <div> STEP {part.index} </div> 
               <div key={part.index}> {JSON.stringify(part, null, 2)} </div>
             </div>

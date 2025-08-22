@@ -44,7 +44,7 @@ export async function POST(request: Request) {
               const id = crypto.randomUUID();
                  // Start: show a persistent progress panel
                  writer.write({
-                  type: 'data-tool-run',
+                  type: 'data-tool-rn',
                   id,
                   data: { status: 'starting', text: `Planning: ${brief}\n` },
                 });
@@ -73,7 +73,6 @@ export async function POST(request: Request) {
                 data: { status: 'done' },
               });
 
-           
               // The tool's formal output (not streamed)
               return { id, artifact: final };
             },
