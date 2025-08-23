@@ -19,43 +19,42 @@ type CritiqueResult = {
 //   result?: CritiqueResult;
 // };
 
-export default function EditEmailToolDisplay({ part }: any) {
+export default function EditEmailToolDisplay({ text, output, status }: any) {
 
-  return <div> EditEmailToolDisplay </div>
-  // const instanceId = useId();
-  // const { isOpen, open, close } = usePreviewDrawer(instanceId);
-  // const fixedMjml = part?.data?.final ?? null;
-  // const compiledFixed = useCompiledMjml(fixedMjml);
+  // return <div> EditEmailToolDisplay </div>
+  const instanceId = useId();
+  const { isOpen, open, close } = usePreviewDrawer(instanceId); 
+  const compiledFixed = useCompiledMjml(fixedMjml);
 
-  // const issuesText = useMemo(() => {
-  //   if (!result?.issues?.length) return "No issues detected.";
-  //   return result.issues
-  //     .map((it, idx) => `${idx + 1}. [S${it.severity}] ${it.issue}\nFix: ${it.fix}`)
-  //     .join("\n\n");
-  // }, [result]);
+  const issuesText = useMemo(() => {
+    if (!result?.issues?.length) return "No issues detected.";
+    return result.issues
+      .map((it, idx) => `${idx + 1}. [S${it.severity}] ${it.issue}\nFix: ${it.fix}`)
+      .join("\n\n");
+  }, [result]);
 
-  // if (status === "input-available") {
-  //   return <EmailDraftInProgressNotice />;
-  // }
+  if (status === "input-available") {
+    return <EmailDraftInProgressNotice />;
+  }
 
-  // const canOpen = Boolean(result && (result.issues || result.fixedMJML));
+  const canOpen = Boolean(result && (result.issues || result.fixedMJML));
 
-  // return (
-  //   <>
-  //     <OpenPreviewButton onOpen={() => { if (canOpen) open(); }} disabled={!canOpen} label="Email critique ready" />
-  //     <PreviewDrawer
-  //       isOpen={Boolean(isOpen && canOpen)}
-  //       onClose={close}
-  //       title="Preview"
-  //       tabs={[
-  //         { id: "issues", label: "Issues", content: <IssuesTab issuesText={issuesText} /> },
-  //         { id: "fixed", label: "Fixed email", content: <HtmlPreviewTab compiledHtml={compiledFixed} /> },
-  //         ...(fixedMjml ? [{ id: "mjml", label: "MJML", content: <MjmlCodeTab mjml={fixedMjml} /> }] : []),
-  //       ]}
-  //       initialTabId="issues"
-  //     />
-  //   </>
-  // );
+  return (
+    <>
+      <OpenPreviewButton onOpen={() => { if (canOpen) open(); }} disabled={!canOpen} label="Email critique ready" />
+      <PreviewDrawer
+        isOpen={Boolean(isOpen && canOpen)}
+        onClose={close}
+        title="Preview"
+        tabs={[
+          { id: "issues", label: "Issues", content: <IssuesTab issuesText={issuesText} /> },
+          { id: "fixed", label: "Fixed email", content: <HtmlPreviewTab compiledHtml={compiledFixed} /> },
+          ...(fixedMjml ? [{ id: "mjml", label: "MJML", content: <MjmlCodeTab mjml={fixedMjml} /> }] : []),
+        ]}
+        initialTabId="issues"
+      />
+    </>
+  );
 }
 
 

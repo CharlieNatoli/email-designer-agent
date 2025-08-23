@@ -5,17 +5,15 @@ import {useRef, useState } from "react";
 import { useChat } from '@ai-sdk/react';
 import {
   DefaultChatTransport,
-  lastAssistantMessageIsCompleteWithToolCalls,
 } from 'ai'; 
 
 
 import ChatInput from "./components/ChatInput";
 import MessageBubble from "./components/MessageBubble";
 import DraftMarketingEmailToolDisplay from "@/tools/DraftMarketingEmailDisplay";
-import EditEmailToolDisplay from "@/tools/EditEmailToolDisplay";
+// import EditEmailToolDisplay from "@/tools/EditEmailToolDisplay";
 import ImageSidebar from "./components/ImageSidebar"; 
-
-type Part = { type: string; [k: string]: any };
+import EditEmailToolDisplay from "@/tools/EditEmailToolDisplay";
 
 // takes in one messsage at a time (as m) from the useChat hook
 const messageRenderer = ( m: any) => {
@@ -31,44 +29,27 @@ const messageRenderer = ( m: any) => {
           return <MessageBubble role={m.role} key={"text-" + part.id}>
             {part.text}
           </MessageBubble>
-        } else if (part.type === 'data-tool-run' && part.data?.tool === 'DraftMarketingEmail' ) {
+        } else if (
+          part.type === 'data-tool-run'  
+          && (part.data?.status === 'done' || part.data?.status === 'streaming')
+        ) {
+          if (part.data?.tool === 'DraftMarketingEmail') {
           // TOOD - this should all be moved into component... 
-
-          if (part.data?.status === 'streaming') {
-            return ( 
-              <div key={"tool-DraftMarketingEmail-other" + part.id}> 
-                <DraftMarketingEmailToolDisplay 
-                  key ={"tool-DraftMarketingEmail-display-1" + part.id} 
-                  status={part.state} 
-                  output={undefined} 
-                  text={part.data?.text} 
-                />  
-
-                <div> STEP {part.index} </div> 
-                <div key={part.index}> {JSON.stringify(part, null, 2)} </div>
-              </div> 
-          )
-          } else if (part.data?.status === 'done') {
-            return (
-              <div key={"tool-DraftMarketingEmail-other" + part.id}> 
-                <DraftMarketingEmailToolDisplay 
-                  key ={"tool-DraftMarketingEmail-display-1" + part.id} 
-                  status={part.state} 
-                  output={part.data?.final} 
-                  text={undefined} 
-                />  
-                <div> STEP {part.index} </div> 
-                <div key={part.index}> {JSON.stringify(part, null, 2)} </div>
-              </div>
-            )
-          }      
-      } else if (part.type === 'data-tool-run' && part.data?.tool === 'editEmail' ) {
-        return (
-          <div key={"tool-editEmail-other" + part.id}> 
-            <EditEmailToolDisplay part={part} />  
-          </div>
-        )
-      }
+            return <DraftMarketingEmailToolDisplay 
+              key={part.id}
+              text={part.data?.text} 
+              output={part.data?.final}
+              status={part.state}
+            />
+          } else if (part.data?.tool === 'editEmail') {
+            return <EditEmailToolDisplay
+                key={part.id}
+                text={part.data?.text} 
+                output={part.data?.final}
+                status={part.state} 
+            />
+          }
+        }
     })}
     </div>
   )

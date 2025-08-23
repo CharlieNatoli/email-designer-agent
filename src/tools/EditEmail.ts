@@ -1,21 +1,31 @@
 import { renderEmailToPng } from "@/utils/screenshot";
-import { OpenAI } from "openai";
 import { z } from "zod";
 import { anthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
 
  export const EditToolInputSchema = z.object({
     userInstructions: z.string().describe("A brief description of the email to edit"),
-    emailToEditID: z.string().describe("Unique ID of the email to edit, as returned by the DraftMarketingEmail tool"),
+    emailToEditID: z.string().describe(`
+        toolCallId of the email to edit, as returned by the DraftMarketingEmail tool. 
+        Specfiically,look for the message where role="tool" and toolName="DraftMarketingEmail".
+        This should be a random string of letters and numbers prefixed with 'call_'.
+        Include the 'call_' prefix in the toolCallId.
+        For example, "call_q5A0RCjXq900G7Av5gMnUuM7"
+          `),
  });
 
  export const editEmailSystemPrompt = `
- You are a creative email designer. Help the customer design an email. Use the DraftMarketingEmail tool to render the email if they ask for one.
- Also talk to the customer in a friendly and engaging way. After using the DraftMarketingEmail tool, summarize the email in natural language.
+ You are a creative email designer. Help the customer edit an email.  
+ You will be given an ID of an email to edit, and brief instructions on what to edit.
  `
 
  
-export async function editEmail(writer: any, userInstructions: string, modelMessages: any[], emailToEditID: string) {   
+export async function editEmail(
+    writer: any, 
+    userInstructions: string, 
+    modelMessages: any[], 
+    emailToEditID: string, 
+) {   
 
 
     const id = crypto.randomUUID();
@@ -27,17 +37,50 @@ export async function editEmail(writer: any, userInstructions: string, modelMess
     });
  
 
+    console.log("[editEmail] emailToEditID", emailToEditID);
     console.log("[editEmail] userInstructions", userInstructions);
-    console.log("[editEmail] modelMessages", modelMessages);   
+    console.log("[editEmail] modelMessages", JSON.stringify(modelMessages, null, 2));   
     
-    // get email from ID
-    const emailToEdit = modelMessages.find(message => message.role === "tool" && message.content.type === "tool-result" && message.content.toolName === "DraftMarketingEmail" && message.content.output.value === emailToEditID);
+    // Resolve MJML to edit by scanning assistant message parts for the DraftMarketingEmail tool output
+    let emailMjml: string | undefined;
+    try {
+      const assistantMessages = Array.isArray(modelMessages)
+        ? modelMessages.filter((m: any) => m?.role === "assistant" && Array.isArray(m?.parts))
+        : [];
 
-    console.log("[editEmail] emailToEdit", emailToEdit);
-     
+      for (const message of assistantMessages) {
+        for (const part of message.parts) {
+          if (part?.type === "tool-DraftMarketingEmail" && part?.toolCallId === emailToEditID) {
+            emailMjml = part?.output?.artifact;
+            break;
+          }
+        }
+        if (emailMjml) break;
+      }
+    } catch (err) {
+      console.error("[editEmail] Failed while scanning messages for tool output", err);
+    }
 
+    if (!emailMjml) {
+      const errorMsg = `Could not find DraftMarketingEmail output for toolCallId ${emailToEditID}`;
+      console.error("[editEmail]", errorMsg, { emailToEditID });
+      writer.write({
+        type: 'data-tool-run',
+        id,
+        data: { tool: 'editEmail', status: 'error', text: errorMsg },
+      });
+      throw new Error(errorMsg);
+    }
+
+    console.log("[editEmail] found email MJML length", emailMjml.length);
+    
+    writer.write({
+        type: 'data-tool-run',
+        id,
+        data: {  tool: 'editEmail', status: 'taking-screenshot' },
+      });
  
-    const { buffer, base64 } = await renderEmailToPng(emailToEdit);
+    const { buffer, base64 } = await renderEmailToPng(emailMjml);
     console.log("[draftMarketingEmail] rendering", buffer);
 
 
@@ -51,7 +94,7 @@ export async function editEmail(writer: any, userInstructions: string, modelMess
                 content: [
                     { 
                         type: "text", 
-                        text: `email to be edited: ${emailToEdit}.\n\n${userInstructions}`   
+                        text: `MJML of email to be edited:\n\n${emailMjml}\n\n${userInstructions}`   
                     },
                     {
                         type: "image",
@@ -79,6 +122,8 @@ export async function editEmail(writer: any, userInstructions: string, modelMess
         data: { tool: 'editEmail', status: 'done' , final: final },
       });
 
-    return final;
+      return { id, artifact: final };
+
+}
 
  

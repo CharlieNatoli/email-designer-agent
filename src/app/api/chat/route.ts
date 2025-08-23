@@ -1,4 +1,4 @@
-import { createUIMessageStream, streamText, generateText } from 'ai';
+import { createUIMessageStream, streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
@@ -77,13 +77,13 @@ export async function POST(request: Request) {
               return { id, artifact: final };
             },
           }, 
-        //   EditEmail: {
-        //     description: 'Edit an email based on a creative brief',
-        //     inputSchema: EditToolInputSchema,
-        //     execute: async ({ brief }) => {
-        //       return await editEmail(brief, modelMessages);
-        //     },
-        //   },
+          EditEmail: {
+            description: 'Edit an email based on a creative brief',
+            inputSchema: EditToolInputSchema,
+            execute: async ({userInstructions, emailToEditID }) => {
+              return await editEmail(writer, userInstructions, modelMessages, emailToEditID);
+            },
+          },
         },
         stopWhen: stepCountIs(10),
       });
