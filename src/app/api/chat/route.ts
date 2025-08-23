@@ -9,7 +9,7 @@ import {  draftMarketingEmailSystemPrompt } from '@/tools/DraftMarketingEmail';
 import { readAllImageInfo, formatImageInfoForSystemPrompt } from '@/lib/imageInfo';
 
 import { convertToModelMessages } from 'ai';
-import { critiqueEmail } from '@/tools/CritiqueEmail';
+import { editEmail, EditToolInputSchema } from '@/tools/EditEmail';
 import { createUIMessageStreamResponse, stepCountIs } from 'ai';
 
 export const runtime = 'nodejs';
@@ -42,13 +42,13 @@ export async function POST(request: Request) {
             execute: async ({ brief }) => {
 
               const id = crypto.randomUUID();
-                 // Start: show a persistent progress panel
-                 writer.write({
-                  type: 'data-tool-run',
-                  id,
-                  data: {  tool: 'DraftMarketingEmail', status: 'starting', text: `Planning: ${brief}\n` },
-                });
-  
+              // Start: show a persistent progress panel
+              writer.write({
+                type: 'data-tool-run',
+                id,
+                data: {  tool: 'DraftMarketingEmail', status: 'starting', text: `Planning: ${brief}\n` },
+              });
+    
 
               const result =  streamText({
                 model: anthropic('claude-sonnet-4-20250514'),
@@ -77,6 +77,13 @@ export async function POST(request: Request) {
               return { id, artifact: final };
             },
           }, 
+        //   EditEmail: {
+        //     description: 'Edit an email based on a creative brief',
+        //     inputSchema: EditToolInputSchema,
+        //     execute: async ({ brief }) => {
+        //       return await editEmail(brief, modelMessages);
+        //     },
+        //   },
         },
         stopWhen: stepCountIs(10),
       });
