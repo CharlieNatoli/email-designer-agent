@@ -11,9 +11,7 @@ import {
 import ChatInput from "./components/ChatInput";
 import MessageBubble from "./components/MessageBubble";
 import DraftMarketingEmailToolDisplay from "@/tools/DraftMarketingEmailDisplay";
-// import EditEmailToolDisplay from "@/tools/EditEmailToolDisplay";
 import ImageSidebar from "./components/ImageSidebar"; 
-import EditEmailToolDisplay from "@/tools/EditEmailToolDisplay";
 
 // takes in one messsage at a time (as m) from the useChat hook
 const messageRenderer = ( m: any) => {
@@ -34,7 +32,6 @@ const messageRenderer = ( m: any) => {
           && (part.data?.status === 'done' || part.data?.status === 'streaming')
         ) {
           if (part.data?.tool === 'DraftMarketingEmail') {
-          // TOOD - this should all be moved into component... 
             return <DraftMarketingEmailToolDisplay 
               key={part.id}
               text={part.data?.text} 
@@ -42,7 +39,7 @@ const messageRenderer = ( m: any) => {
               status={part.state}
             />
           } else if (part.data?.tool === 'editEmail') {
-            return <EditEmailToolDisplay
+            return <DraftMarketingEmailToolDisplay
                 key={part.id}
                 text={part.data?.text} 
                 output={part.data?.final}

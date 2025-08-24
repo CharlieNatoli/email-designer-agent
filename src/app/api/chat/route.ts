@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   const stream = createUIMessageStream({
     async execute({ writer }) {
       const result = streamText({
-        model: openai('gpt-4o-mini'),
+        model: openai('gpt-4'),
         messages: convertToModelMessages(messages),
         system: `You are a creative email designer. Help the customer design an email. Use the DraftMarketingEmail tool to render the email if they ask for one.
         Also talk to the customer in a friendly and engaging way. After using the DraftMarketingEmail tool, summarize the email in natural language.
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
           DraftMarketingEmail: {
             description: 'Render a marketing email based on a creative brief',
             inputSchema: DraftToolInputSchema, 
-            execute: async ({ brief }) => {
+            execute: async ({ brief }: { brief: string }) => {
 
               const id = crypto.randomUUID();
               // Start: show a persistent progress panel
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
           EditEmail: {
             description: 'Edit an email based on a creative brief',
             inputSchema: EditToolInputSchema,
-            execute: async ({userInstructions, emailToEditID }) => {
+            execute: async ({ userInstructions, emailToEditID }: { userInstructions: string; emailToEditID: string }) => {
               return await editEmail(writer, userInstructions, modelMessages, emailToEditID);
             },
           },

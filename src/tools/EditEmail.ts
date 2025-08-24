@@ -5,12 +5,14 @@ import { streamText } from "ai";
 
  export const EditToolInputSchema = z.object({
     userInstructions: z.string().describe("A brief description of the email to edit"),
-    emailToEditID: z.string().describe(`
-        toolCallId of the email to edit, as returned by the DraftMarketingEmail tool. 
-        Specfiically,look for the message where role="tool" and toolName="DraftMarketingEmail".
-        This should be a random string of letters and numbers prefixed with 'call_'.
-        Include the 'call_' prefix in the toolCallId.
-        For example, "call_q5A0RCjXq900G7Av5gMnUuM7"
+    emailToEditID: z.string().describe(` 
+      Id of the tool call to the DraftMarketingEmail tool that created the email to edit.
+      Specifically, look for the message where type="data-tool-run" and data.tool="DraftMarketingEmail"
+      You are looking for the "id" field of the message.
+
+
+
+
           `),
  });
 
@@ -36,22 +38,23 @@ export async function editEmail(
       data: {  tool: 'editEmail', status: 'starting', text: `Planning: ${userInstructions}\n` },
     });
  
-
-    console.log("[editEmail] emailToEditID", emailToEditID);
-    console.log("[editEmail] userInstructions", userInstructions);
-    console.log("[editEmail] modelMessages", JSON.stringify(modelMessages, null, 2));   
-    
     // Resolve MJML to edit by scanning assistant message parts for the DraftMarketingEmail tool output
     let emailMjml: string | undefined;
     try {
-      const assistantMessages = Array.isArray(modelMessages)
-        ? modelMessages.filter((m: any) => m?.role === "assistant" && Array.isArray(m?.parts))
-        : [];
+      const toolMessages = modelMessages.filter((message: any) => {
+        if (message?.role !== "tool") return false;
+        const contentArray = Array.isArray(message?.content) ? message.content : [];
+        return contentArray.some((part: any) =>
+          part?.type === "tool-result" && part?.toolName === "DraftMarketingEmail"
+        );
+      });
 
-      for (const message of assistantMessages) {
-        for (const part of message.parts) {
-          if (part?.type === "tool-DraftMarketingEmail" && part?.toolCallId === emailToEditID) {
-            emailMjml = part?.output?.artifact;
+      for (const message of toolMessages) {
+        const contentArray = Array.isArray(message?.content) ? message.content : [];
+        for (const content of contentArray) {
+          console.log("[editEmail] content", JSON.stringify(content, null, 2));
+          if (content?.type === "tool-result" && content?.output?.value?.id === emailToEditID) {
+            emailMjml = content?.output?.value?.artifact;
             break;
           }
         }
@@ -62,7 +65,7 @@ export async function editEmail(
     }
 
     if (!emailMjml) {
-      const errorMsg = `Could not find DraftMarketingEmail output for toolCallId ${emailToEditID}`;
+      const errorMsg = `Could not find DraftMarketingEmail output for email id ${emailToEditID}`;
       console.error("[editEmail]", errorMsg, { emailToEditID });
       writer.write({
         type: 'data-tool-run',
