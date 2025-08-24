@@ -52,24 +52,69 @@ const DragAndDropArea = (
 }
 
 const AnalyzingImageNotice = () => {
+  const styles = {
+    overlay: { 
+      position: "absolute" as const,
+      inset: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'rgba(255, 255, 255, 0.25)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255, 255, 255, 0.18)',
+      borderRadius: 6,
+    },
+    text: {
+      position: "absolute" as const,
+      bottom: 10,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      color: '#fff',
+      fontSize: 14,
+      fontWeight: 600,
+      textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+      background: 'rgba(0, 0, 0, 0.4)',
+      padding: '8px 16px',
+      borderRadius: 20,
+      backdropFilter: 'blur(5px)',
+    },
+    svg: {
+      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+      animation: 'pulse 1.2s ease-in-out infinite',
+    }
+  };
+
   return (
-    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.4)", borderRadius: 6 }}>
-      <div
+    <div 
+      style={styles.overlay} 
+    >
+      <style>
+        {`@keyframes pulse {
+          0%, 100% { opacity: 0.85; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.05); }
+        }`}
+      </style>
+      <svg
         aria-label="Analyzing image"
-        style={{
-          width: 28,
-          height: 28,
-          border: "3px solid rgba(255,255,255,0.18)",
-          borderTopColor: "#7b86ff",
-          borderRadius: "50%",
-          animation: "spin 1s linear infinite",
-        }}
-      />
+        width="54"
+        height="54"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={styles.svg}
+      >
+        <circle cx="11" cy="11" r="6.5" stroke="white" strokeWidth="1.5" />
+        <circle cx="9.5" cy="9.5" r="0.8" fill="white" />
+        <path d="M15.5 15.5L19.8 19.8" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+      <div style={styles.text}>Analyzing image</div>
     </div>
   );
 };
 
-const ImagePreviewButton = (
+
+const ImagePreview = (
   { item, onPreview, readyIds, onDelete }: { item: UploadItem, onPreview: (item: UploadItem) => void, readyIds: Set<string>, onDelete: (name: string) => void | Promise<void> }
 ) => {
   const [hovered, setHovered] = useState<string | null>(null);
@@ -95,7 +140,7 @@ const ImagePreviewButton = (
         <img
           src={`/uploads/${item.name}`}
           alt={item.name}
-          style={{ width: "100%", height: 84, objectFit: "cover", borderRadius: 6, border: "1px solid #2d2f36" }}
+          style={{ width: "100%", height: 150, objectFit: "cover", borderRadius: 6, border: "1px solid #2d2f36" }}
         />
       </button>
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
@@ -124,9 +169,9 @@ const DeleteButton = ({ hovered, item, handleDelete }: { hovered: string | null,
             background: "rgba(0,0,0,0.55)",
             border: "1px solid #444",
             color: "#f3b1b1",
-            borderRadius: 10,
-            width: 20,
-            height: 20,
+            borderRadius: 30,
+            width: 30,
+            height: 30,
             cursor: "pointer",
           }}
         >
@@ -156,7 +201,7 @@ const ImageList = ({ items, setPreview, readyIds, handleDelete }: ImageListProps
       alignContent: "start",
     }}>
       {items.map((item) => (
-        <ImagePreviewButton
+        <ImagePreview
           key={item.name}
           item={item}
           onPreview={(it) => setPreview(it)}
@@ -260,10 +305,11 @@ export default function ImageSidebar() {
 
   const uploadBoxBorder = useMemo(() => (isDragging ? "2px dashed #77aaff" : "2px dashed #3f4147"), [isDragging]);
 
+  // TOOD - fix loading state + make prettier
   return (
     <div
       style={{
-        width: 150,
+        width: 200,
         backgroundColor: "#1e1f24",
         borderRight: "1px solid #2a2b31",
         height: "100%",
@@ -271,15 +317,19 @@ export default function ImageSidebar() {
         flexDirection: "column",
       }}
     >
-      <DragAndDropArea onDrop={onDrop} inputRef={inputRef} uploadBoxBorder={uploadBoxBorder} onInputChange={onInputChange} setIsDragging={setIsDragging} />  
-
+      <DragAndDropArea 
+        onDrop={onDrop} 
+        inputRef={inputRef} 
+        uploadBoxBorder={uploadBoxBorder} 
+        onInputChange={onInputChange} 
+      setIsDragging={setIsDragging} 
+      />  
       <ImageList 
         items={items}
         setPreview={setPreview}
         readyIds={readyIds}
         handleDelete={handleDelete}
       />
-
       {preview && (
         <ImagePreviewPopout item={preview} onClose={() => setPreview(null)} />
       )}

@@ -15,7 +15,6 @@ export default function MessageBubble({ role, children }: MessageBubbleProps) {
       style={{
         display: "flex",
         justifyContent: isUser ? "flex-end" : "flex-start",
-        marginBottom: 12,
       }}
     >
       <div

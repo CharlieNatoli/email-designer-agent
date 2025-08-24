@@ -44,8 +44,7 @@ export default function DraftMarketingEmailToolDisplay({ status, output, text }:
   // completed
   return (
     <>
-      <OpenPreviewButton onOpen={() => open()} disabled={false} />
-       <div> {runningText} </div>
+      <OpenPreviewButton onOpen={() => open()} disabled={false} draftCompleted={TOOL_RUN_STATUS.done === status} />
       <PreviewDrawer
         isOpen={Boolean(isOpen)}
         onClose={close}

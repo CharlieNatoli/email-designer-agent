@@ -17,6 +17,7 @@ type PreviewDrawerProps = {
   initialTabId?: string;
 };
 
+// todo - make prettier?
 export default function PreviewDrawer({ isOpen, title = "Preview", onClose, tabs, initialTabId }: PreviewDrawerProps) {
   const firstTabId = useMemo(() => tabs[0]?.id, [tabs]);
   const [activeTabId, setActiveTabId] = useState<string>(initialTabId && tabs.some(t => t.id === initialTabId) ? initialTabId : firstTabId);

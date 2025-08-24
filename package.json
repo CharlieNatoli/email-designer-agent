@@ -13,6 +13,7 @@
     "@ai-sdk/openai": "^2.0.11",
     "@ai-sdk/react": "^2.0.11",
     "ai": "^5.0.11",
+    "bootstrap-icons": "^1.13.1",
     "ijavascript": "^5.2.1",
     "mjml": "^4.15.3",
     "mjml-browser": "^4.15.3",

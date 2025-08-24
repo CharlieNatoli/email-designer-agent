@@ -18,28 +18,32 @@ function renderMessage(m: UIMessage | any) {
           if (part.state && part.state !== "done") return null;
           const key = part.id ?? `${m.id}-text-${index}`;
           return (
-            <MessageBubble role={m.role} key={key}>
-              {part.text}
-            </MessageBubble>
+            <div key={key} style={{ marginBottom: 12 }}>
+              <MessageBubble role={m.role}>
+                {part.text}
+              </MessageBubble>
+            </div>
           );
         } else if (part.type === "data-tool-run") {
           if (part.data?.tool === "DraftMarketingEmail") {
             return (
-              <DraftMarketingEmailToolDisplay
-                key={part.id}
-                text={part.data?.text}
-                output={part.data?.final}
-                status={part.data?.status}
-              />
+              <div key={part.id} style={{ marginBottom: 12 }}>
+                <DraftMarketingEmailToolDisplay
+                  text={part.data?.text}
+                  output={part.data?.final}
+                  status={part.data?.status}
+                />
+              </div>
             );
           } else if (part.data?.tool === "EditEmail") {
             return (
-              <DraftMarketingEmailToolDisplay
-                key={part.id}
-                text={part.data?.text}
-                output={part.data?.final}
-                status={part.data?.status}
-              />
+              <div key={part.id} style={{ marginBottom: 12 }}>
+                <DraftMarketingEmailToolDisplay
+                  text={part.data?.text}
+                  output={part.data?.final}
+                  status={part.data?.status}
+                />
+              </div>
             );
           }
         }
@@ -48,6 +52,30 @@ function renderMessage(m: UIMessage | any) {
     </div>
   );
 }
+const ThinkingRobot = () => (
+  <div style={{ 
+    opacity: 0.7, 
+    marginTop: 8, 
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: 8 
+    }}> 
+    <i 
+      className="bi bi-robot" 
+      style={{
+        fontSize: '24px',
+        animation: 'bounce 1.2s ease-in-out infinite'
+      }}
+    />
+    <span>Thinking...</span>
+    <style jsx>{`
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-2px); }
+      }
+    `}</style>
+  </div>
+);
 
 export default function MessagesArea({ messages, status }: Props) {
 
@@ -63,7 +91,7 @@ export default function MessagesArea({ messages, status }: Props) {
       )}
       {messages.map((m: any) => renderMessage(m))}
       {status === "streaming" && (
-        <div style={{ opacity: 0.7, marginTop: 8 }}>Thinking…</div>
+        <ThinkingRobot />
       )}
     </>
   );
