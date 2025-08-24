@@ -37,7 +37,7 @@ export default function DraftMarketingEmailToolDisplay({ status, output, text }:
     compiledHtml = useCompiledMjml(output);
   }
 
-  if (status === TOOL_RUN_STATUS.starting || status === TOOL_RUN_STATUS.streaming) {
+  if (status === TOOL_RUN_STATUS.starting ) {
     return  <EmailDraftInProgressNotice />
   }
 

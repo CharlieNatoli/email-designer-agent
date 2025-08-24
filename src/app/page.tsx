@@ -8,11 +8,10 @@ import { DefaultChatTransport } from "ai";
 import ChatInput from "@/app/components/ChatInput";
 import ImageSidebar from "@/app/components/ImageSidebar";
 import ChatPageView from "@/app/components/ChatPageView"; 
-import { renderMessage } from "@/app/components/renderMessage";
+import MessagesArea from "@/app/components/messagesArea";
 
 
 export default function Home() {
- 
   
   const [input, setInput] = useState("");
 
@@ -23,19 +22,11 @@ export default function Home() {
   });
 
   const sidebar = <ImageSidebar />;
+
+  console.log("messages", messages);
   
   const messagesArea = (
-    <>
-      {messages.length === 0 && (
-        <div style={{ opacity: 0.7, textAlign: "center", marginTop: 32 }}>
-          Start a conversation below.
-        </div>
-      )}
-      {messages.map((m: any) => renderMessage(m))}
-      {status === "streaming" && (
-        <div style={{ opacity: 0.7, marginTop: 8 }}>Thinking…</div>
-      )}
-    </>
+    <MessagesArea messages={messages as any} status={status} />
   );
   const inputArea = (
     <ChatInput
