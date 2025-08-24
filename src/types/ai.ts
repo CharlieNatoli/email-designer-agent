@@ -35,6 +35,7 @@ export type TextPart = {
 
 export type MessagePart = TextPart | DataToolRunPart;
 
+// TODO - does tis part come from the ai-sdk?
 export type UIMessage = {
   id: string;
   role: "user" | "assistant" | "system" | "tool";
