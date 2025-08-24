@@ -4,22 +4,30 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
 
  export const EditToolInputSchema = z.object({
-    userInstructions: z.string().describe("A brief description of the email to edit"),
+    userInstructions: z.string().describe("Repeat word for word the user's instructions for editing the email."),
     emailToEditID: z.string().describe(` 
-      Id of the tool call to the DraftMarketingEmail tool that created the email to edit.
-      Specifically, look for the message where type="data-tool-run" and data.tool="DraftMarketingEmail"
-      You are looking for the "id" field of the message.
-
-
-
-
-          `),
+Id of the tool call to the DraftMarketingEmail tool that created the email to edit.
+Specifically, look for the message where type="data-tool-run" and data.tool="DraftMarketingEmail"
+You are looking for the "id" field of the message.`),
  });
 
  export const editEmailSystemPrompt = `
- You are a creative email designer. Help the customer edit an email.  
- You will be given an ID of an email to edit, and brief instructions on what to edit.
- `
+ Please help the user edit an email. You will be given the MJML code of thhe email, a screenshot of the email, and the user's instructions for editing the email.
+
+Edit the email to match the user's instructions. DO NOT make any other changes to the email.
+
+<image-context>
+Images provided by the user:
+{imageContext}
+</image-context>
+
+<final-output-format>
+- Return only the MJML must start with <mjml> and include <mj-body> wrapping the entire email content. Return ONLY the MJML, no other text.
+</final-output-format> `
+
+export const editEmailToolDescription = `
+Edit an email based on a creative brief.
+`
 
  
 export async function editEmail(
@@ -28,7 +36,6 @@ export async function editEmail(
     modelMessages: any[], 
     emailToEditID: string, 
 ) {   
-
 
     const id = crypto.randomUUID();
     // Start: show a persistent progress panel

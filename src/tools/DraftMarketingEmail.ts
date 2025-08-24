@@ -29,23 +29,50 @@ General guidelines:
 </final-output-format>`
 
 
-// export async function draftMarketingEmail(brief: string) {
+export const draftMarketingEmailToolDescription = `
+Draft a marketing email based on a creative brief.
+`
 
-//     console.log("[draftMarketingEmail] description", brief);
-//     const imageInfos = await readAllImageInfo();
-//     const imageContext = formatImageInfoForSystemPrompt(imageInfos);
+export async function draftMarketingEmail(writer: any, brief: string) {
  
-//     const { response } = streamText({
-//         model: anthropic('claude-sonnet-4-20250514'),
-//         //        model: anthropic('claude-opus-4-1-20250805'),
-//         prompt: draftMarketingEmailSystemPrompt
-//       });
+    const id = crypto.randomUUID();
+    // Start: show a persistent progress panel
+    writer.write({
+      type: 'data-tool-run',
+      id,
+      data: {  tool: 'DraftMarketingEmail', status: 'starting', text: `Planning: ${brief}\n` },
+    });
 
-//     console.log("[draftMarketingEmail] response", response);
-    
+    const imageInfos = await readAllImageInfo();
+    const imageContext = formatImageInfoForSystemPrompt(imageInfos);
 
-//     return response;
 
-// }
+    const result =  streamText({
+      model: anthropic('claude-sonnet-4-20250514'),
+      system: draftMarketingEmailSystemPrompt.replace('{imageContext}', imageContext), 
+      prompt: brief,
+
+  });
+
+    for await (const delta of result.textStream) {
+      writer.write({
+        type: 'data-tool-run',
+        id,
+        data: {  tool: 'DraftMarketingEmail',status: 'streaming', text: delta },
+      });
+    }
+
+    const final = await result.text;
+
+    writer.write({
+      type: 'data-tool-run',
+      id,
+      data: { tool: 'DraftMarketingEmail', status: 'done' , final: final },
+    });
+
+    // The tool's formal output (not streamed)
+    return { id, artifact: final }; 
+
+}
 
 
