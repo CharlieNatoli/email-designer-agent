@@ -2,6 +2,7 @@ import { renderEmailToPng } from "@/utils/screenshot";
 import { z } from "zod";
 import { anthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
+import { TOOL_NAME, TOOL_RUN_STATUS } from "@/types/ai";
 
  export const EditToolInputSchema = z.object({
     userInstructions: z.string().describe("Repeat word for word the user's instructions for editing the email."),
@@ -42,7 +43,7 @@ export async function editEmail(
     writer.write({
       type: 'data-tool-run',
       id,
-      data: {  tool: 'editEmail', status: 'starting', text: `Planning: ${userInstructions}\n` },
+      data: { tool: TOOL_NAME.EditEmail, status: TOOL_RUN_STATUS.starting, text: `Planning: ${userInstructions}\n` },
     });
  
     // Resolve MJML to edit by scanning assistant message parts for the DraftMarketingEmail tool output
@@ -77,7 +78,7 @@ export async function editEmail(
       writer.write({
         type: 'data-tool-run',
         id,
-        data: { tool: 'editEmail', status: 'error', text: errorMsg },
+        data: { tool: TOOL_NAME.EditEmail, status: TOOL_RUN_STATUS.error, text: errorMsg },
       });
       throw new Error(errorMsg);
     }
@@ -85,10 +86,10 @@ export async function editEmail(
     console.log("[editEmail] found email MJML length", emailMjml.length);
     
     writer.write({
-        type: 'data-tool-run',
-        id,
-        data: {  tool: 'editEmail', status: 'taking-screenshot' },
-      });
+      type: 'data-tool-run',
+      id,
+      data: { tool: TOOL_NAME.EditEmail, status: TOOL_RUN_STATUS.starting, text: 'Taking screenshot…' },
+    });
  
     const { buffer, base64 } = await renderEmailToPng(emailMjml);
     console.log("[draftMarketingEmail] rendering", buffer);
@@ -120,17 +121,17 @@ export async function editEmail(
         writer.write({
           type: 'data-tool-run',
           id,
-          data: {  tool: 'editEmail', status: 'streaming', text: delta },
+          data: { tool: TOOL_NAME.EditEmail, status: TOOL_RUN_STATUS.streaming, text: delta },
         });
       } 
 
     const final = await result.text;
 
     writer.write({
-        type: 'data-tool-run',
-        id,
-        data: { tool: 'editEmail', status: 'done' , final: final },
-      });
+      type: 'data-tool-run',
+      id,
+      data: { tool: TOOL_NAME.EditEmail, status: TOOL_RUN_STATUS.done, final: final },
+    });
 
       return { id, artifact: final };
 

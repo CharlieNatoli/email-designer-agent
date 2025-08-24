@@ -1,6 +1,7 @@
 
 import { anthropic } from '@ai-sdk/anthropic';
-import { streamText, generateText } from 'ai';
+import { streamText } from 'ai';
+import { z } from 'zod';
 
 import { readAllImageInfo, formatImageInfoForSystemPrompt } from "@/lib/imageInfo"; 
 
@@ -32,6 +33,11 @@ General guidelines:
 export const draftMarketingEmailToolDescription = `
 Draft a marketing email based on a creative brief.
 `
+
+
+export const DraftToolInputSchema = z.object({
+    brief: z.string().describe("repeat the description of the email from the customer in the chat so far. "),
+  });
 
 export async function draftMarketingEmail(writer: any, brief: string) {
  

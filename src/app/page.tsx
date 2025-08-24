@@ -12,38 +12,38 @@ import ChatInput from "./components/ChatInput";
 import MessageBubble from "./components/MessageBubble";
 import DraftMarketingEmailToolDisplay from "@/tools/DraftMarketingEmailDisplay";
 import ImageSidebar from "./components/ImageSidebar"; 
+import { TOOL_NAME, type UIMessage, type MessagePart } from "@/types/ai";
 
-// takes in one messsage at a time (as m) from the useChat hook
-const messageRenderer = ( m: any) => {
+// takes in one message at a time (as m) from the useChat hook
+const messageRenderer = ( m: UIMessage | any) => {
 
   // return one div for each step
   return (
     <div key={m.id}>
       <br></br>
       <br></br>
-      {m.parts?.map((part: any) => { 
+      {m.parts?.map((part: MessagePart | any) => { 
 
         if (part.type === 'text') {
           return <MessageBubble role={m.role} key={"text-" + part.id}>
             {part.text}
           </MessageBubble>
         } else if (
-          part.type === 'data-tool-run'  
-          && (part.data?.status === 'done' || part.data?.status === 'streaming')
+          part.type === 'data-tool-run'
         ) {
-          if (part.data?.tool === 'DraftMarketingEmail') {
+          if (part.data?.tool === TOOL_NAME.DraftMarketingEmail) {
             return <DraftMarketingEmailToolDisplay 
               key={part.id}
               text={part.data?.text} 
               output={part.data?.final}
-              status={part.state}
+              status={part.data?.status}
             />
-          } else if (part.data?.tool === 'editEmail') {
+          } else if (part.data?.tool === TOOL_NAME.EditEmail) {
             return <DraftMarketingEmailToolDisplay
                 key={part.id}
                 text={part.data?.text} 
                 output={part.data?.final}
-                status={part.state} 
+                status={part.data?.status} 
             />
           }
         }

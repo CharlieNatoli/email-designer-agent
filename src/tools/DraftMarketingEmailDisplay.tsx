@@ -7,11 +7,12 @@ import PreviewDrawer from "@/app/components/PreviewDrawer";
 import { useCompiledMjml, usePreviewDrawer } from "@/app/components/ToolDisplayBase";
 import HtmlPreviewTab from "@/app/components/tabs/HtmlPreviewTab";
 import MjmlCodeTab from "@/app/components/tabs/MjmlCodeTab";
+import { TOOL_RUN_STATUS, type ToolRunStatus } from "@/types/ai";
 
 
 type Props = {
-  status:  "input-streaming" | "call" | "result" | "input-available";
-  output?: string ;
+  status: ToolRunStatus;
+  output?: string;
   text?: string;
 };
 
@@ -36,8 +37,13 @@ export default function DraftMarketingEmailToolDisplay({ status, output, text }:
     compiledHtml = useCompiledMjml(output);
   }
 
-  if (status === "input-available") {
-    return <EmailDraftInProgressNotice />;
+  if (status === TOOL_RUN_STATUS.starting || status === TOOL_RUN_STATUS.streaming) {
+    return (
+      <>
+        <EmailDraftInProgressNotice />
+        {runningText ? <div>{runningText}</div> : null}
+      </>
+    );
   }
 
   // completed

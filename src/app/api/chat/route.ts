@@ -1,9 +1,6 @@
 import { createUIMessageStream, streamText } from 'ai';
-import { anthropic } from '@ai-sdk/anthropic';
-import {
-  DraftToolInputSchema,  
-} from '@/lib/EmailComponents';
-import {  draftMarketingEmail, draftMarketingEmailToolDescription } from '@/tools/DraftMarketingEmail';
+import { anthropic } from '@ai-sdk/anthropic'; 
+import {  draftMarketingEmail, draftMarketingEmailToolDescription, DraftToolInputSchema } from '@/tools/DraftMarketingEmail';
 import { readAllImageInfo, formatImageInfoForSystemPrompt } from '@/lib/imageInfo';
 
 import { convertToModelMessages } from 'ai';
