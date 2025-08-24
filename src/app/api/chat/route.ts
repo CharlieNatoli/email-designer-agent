@@ -1,10 +1,10 @@
 import { createUIMessageStream, streamText } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic'; 
-import {  draftMarketingEmail, draftMarketingEmailToolDescription, DraftToolInputSchema } from '@/tools/DraftMarketingEmail';
+import {  draftMarketingEmail, draftMarketingEmailToolDescription, DraftToolInputSchema } from '@/app/ai/tools/DraftMarketingEmail';
 import { readAllImageInfo, formatImageInfoForSystemPrompt } from '@/lib/imageInfo';
 
 import { convertToModelMessages } from 'ai';
-import { editEmail, editEmailToolDescription, EditToolInputSchema } from '@/tools/EditEmail';
+import { editEmail, editEmailToolDescription, EditToolInputSchema } from '@/app/ai/tools/EditEmail';
 import { createUIMessageStreamResponse, stepCountIs } from 'ai';
 
 const systemPrompt = `You are a creative email designer. Help the customer design an email. 
