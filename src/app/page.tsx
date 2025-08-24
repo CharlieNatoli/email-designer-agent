@@ -22,8 +22,6 @@ export default function Home() {
   });
 
   const sidebar = <ImageSidebar />;
-
-  console.log("messages", messages);
   
   const messagesArea = (
     <MessagesArea messages={messages as any} status={status} />

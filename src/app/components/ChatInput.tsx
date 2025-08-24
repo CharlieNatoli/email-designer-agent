@@ -13,10 +13,10 @@ type ChatInputProps = {
 export default function ChatInput({ value, setValue, placeholder = "Send a message…", sendMessage, isLoading = false }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const MAX_ROWS = 3;
+  const MAX_ROWS = 5;
   const LINE_HEIGHT = 24; // px
 
-  // Auto-size the input up to 3 lines, then scroll
+  // Auto-size the input up to 5 lines, then scroll
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
