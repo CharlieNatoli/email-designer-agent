@@ -42,24 +42,7 @@ export default function PreviewDrawer({ isOpen, title = "Preview", onClose, tabs
       }}
     >
       <div style={{ padding: 12, borderBottom: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ fontWeight: 600 }}>{title}</div>
-        <button
-          onClick={onClose}
-          style={{
-            background: "#ef4444",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            padding: "6px 10px",
-            cursor: "pointer",
-            fontSize: 13,
-          }}
-        >
-          Close
-        </button>
-      </div>
-      <div style={{ borderBottom: "1px solid #eee", padding: 8, display: "flex", gap: 8 }}>
-        {tabs.map((t) => {
+      {tabs.map((t) => {
           const isActive = t.id === activeTabId;
           return (
             <button
@@ -79,7 +62,21 @@ export default function PreviewDrawer({ isOpen, title = "Preview", onClose, tabs
             </button>
           );
         })}
-      </div>
+        <button
+          onClick={onClose}
+          style={{
+            background: "#ef4444",
+            color: "white",
+            border: "none",
+            borderRadius: 6,
+            padding: "6px 10px",
+            cursor: "pointer",
+            fontSize: 13,
+          }}
+        >
+          Close
+        </button>
+      </div> 
       <div style={{ overflow: "auto", padding: 16, background: "#f8f8f8" }}>
         <div style={{ maxWidth: 640, margin: "0 auto" }}>{active?.content}</div>
       </div>

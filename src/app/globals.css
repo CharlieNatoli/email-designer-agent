@@ -1,6 +1,13 @@
 :root {
   --bg: #202123; /* dark grey */
   --fg: #ececec; /* light text */
+  /* Chat UI shared tokens */
+  --chat-font-family: Arial, Helvetica, sans-serif;
+  --chat-font-size: 16px;
+  --chat-text-color: #ffffff;
+  --chat-padding-y: 12px;
+  --chat-padding-x: 14px;
+  --chat-icon-size: 24px;
 }
 
 html,
@@ -40,6 +47,38 @@ a {
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-2px); }
+}
+
+/* Chat UI utility classes */
+.chat-text-base {
+  font-family: var(--chat-font-family);
+  font-size: var(--chat-font-size);
+  color: var(--chat-text-color);
+  line-height: 1.5;
+}
+
+.chat-left-pad {
+  padding-left: var(--chat-padding-x);
+}
+
+.chat-bubble-base {
+  font-family: var(--chat-font-family);
+  font-size: var(--chat-font-size);
+  color: var(--chat-text-color);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  padding: var(--chat-padding-y) var(--chat-padding-x);
+  border-radius: 12px;
+}
+
+.chat-icon {
+  font-size: var(--chat-icon-size);
+}
+
+.chat-bounce {
+  display: inline-block;
+  animation: bounce 1.2s ease-in-out infinite;
+  will-change: transform;
 }
 
 @import "bootstrap-icons/font/bootstrap-icons.css";

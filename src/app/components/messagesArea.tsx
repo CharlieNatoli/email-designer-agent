@@ -53,27 +53,18 @@ function renderMessage(m: UIMessage | any) {
   );
 }
 const ThinkingRobot = () => (
-  <div style={{ 
-    opacity: 0.7, 
-    marginTop: 8, 
-    display: 'flex', 
-    alignItems: 'center', 
-    gap: 8 
-    }}> 
-    <i 
-      className="bi bi-robot" 
-      style={{
-        fontSize: '24px',
-        animation: 'bounce 1.2s ease-in-out infinite'
-      }}
-    />
+  <div
+    className="chat-text-base chat-left-pad"
+    style={{ 
+      opacity: 0.7, 
+      marginTop: 8, 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: 8 
+    }}
+  > 
+    <i className="bi bi-robot chat-icon chat-bounce" />
     <span>Thinking...</span>
-    <style jsx>{`
-      @keyframes bounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-2px); }
-      }
-    `}</style>
   </div>
 );
 
