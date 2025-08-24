@@ -50,6 +50,9 @@ function renderMessage(m: UIMessage | any) {
 }
 
 export default function MessagesArea({ messages, status }: Props) {
+
+  // TODO - chat no longer streaming. 
+  // TODO - nicer "thinking" message
   
   return (
     <>
