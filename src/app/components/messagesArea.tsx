@@ -76,8 +76,8 @@ export default function MessagesArea({ messages, status }: Props) {
   return (
     <>
       {messages.length === 0 && (
-        <div style={{ opacity: 0.7, textAlign: "center", marginTop: 32 }}>
-          Start a conversation below.
+        <div style={{ opacity: 0.7, textAlign: "center", marginTop: 32, fontSize: 20, fontWeight: 600 }}> 
+           Let's design a beautiful email together.
         </div>
       )}
       {messages.map((m: any) => renderMessage(m))}

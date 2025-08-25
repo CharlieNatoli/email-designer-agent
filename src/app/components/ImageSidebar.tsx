@@ -27,8 +27,10 @@ const DragAndDropArea = (
     onDragLeave={() => setIsDragging(false)}
     onDrop={onDrop}
     style={{
-      margin: 8,
+      margin: 14,
       padding: 8,
+      paddingTop: 32,
+      paddingBottom: 32,
       border: uploadBoxBorder,
       borderRadius: 8,
       textAlign: "center",
@@ -37,8 +39,8 @@ const DragAndDropArea = (
     }}
     onClick={() => inputRef.current?.click()}
   >
-    <div style={{ fontSize: 12, opacity: 0.85 }}>Drag images here</div>
-    <div style={{ fontSize: 11, opacity: 0.55, marginTop: 4 }}>or click to browse</div>
+    <div style={{ fontSize: 16, opacity: 0.85 }}>Drag images here</div>
+    <div style={{ fontSize: 14, opacity: 0.55, marginTop: 4 }}>or click to browse</div>
     <input
       ref={inputRef}
       type="file"

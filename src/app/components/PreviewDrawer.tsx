@@ -18,7 +18,7 @@ type PreviewDrawerProps = {
 };
 
 // todo - make prettier?
-export default function PreviewDrawer({ isOpen, title = "Preview", onClose, tabs, initialTabId }: PreviewDrawerProps) {
+export default function PreviewDrawer({ isOpen, onClose, tabs, initialTabId }: PreviewDrawerProps) {
   const firstTabId = useMemo(() => tabs[0]?.id, [tabs]);
   const [activeTabId, setActiveTabId] = useState<string>(initialTabId && tabs.some(t => t.id === initialTabId) ? initialTabId : firstTabId);
 
@@ -42,6 +42,7 @@ export default function PreviewDrawer({ isOpen, title = "Preview", onClose, tabs
       }}
     >
       <div style={{ padding: 12, borderBottom: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ justifyContent: "flex-start", display: "flex", gap: 8 }}>
       {tabs.map((t) => {
           const isActive = t.id === activeTabId;
           return (
@@ -62,6 +63,7 @@ export default function PreviewDrawer({ isOpen, title = "Preview", onClose, tabs
             </button>
           );
         })}
+        </div>
         <button
           onClick={onClose}
           style={{

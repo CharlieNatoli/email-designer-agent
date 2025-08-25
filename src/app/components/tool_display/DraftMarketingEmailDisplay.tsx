@@ -48,7 +48,6 @@ export default function DraftMarketingEmailToolDisplay({ status, output, text }:
       <PreviewDrawer
         isOpen={Boolean(isOpen)}
         onClose={close}
-        title="Preview"
         tabs={[
           ...(compiledHtml ? [{ id: "preview", label: "Preview", content: <HtmlPreviewTab compiledHtml={compiledHtml} /> }] : []),
           ...(runningText ? [{ id: "mjml", label: "MJML", content: <MjmlCodeTab mjml={runningText} /> }] : []),
