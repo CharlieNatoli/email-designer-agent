@@ -6,6 +6,7 @@ import { readAllImageInfo, formatImageInfoForSystemPrompt } from '@/lib/imageInf
 import { convertToModelMessages } from 'ai';
 import { editEmail, editEmailToolDescription, EditToolInputSchema } from '@/app/ai/tools/EditEmail';
 import { createUIMessageStreamResponse, stepCountIs } from 'ai';
+import { ModelMessageWithEmailToolResults } from '@/types/ai';
 
 const systemPrompt = `You are a creative email designer. Help the customer design an email. 
 Use the DraftMarketingEmail tool to create the email if they ask for one. 
@@ -20,7 +21,7 @@ export const runtime = 'nodejs';
 export async function POST(request: Request) {
   const { messages } = await request.json();
 
-  const modelMessages = convertToModelMessages(messages);
+  const modelMessages = convertToModelMessages(messages) as ModelMessageWithEmailToolResults[];
 
   const imageInfos = await readAllImageInfo();
   const imageContext = formatImageInfoForSystemPrompt(imageInfos);
