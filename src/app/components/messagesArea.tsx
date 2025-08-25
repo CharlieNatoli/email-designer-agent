@@ -14,8 +14,6 @@ function renderMessage(m: UIMessage | any) {
     <div key={m.id}>
       {m.parts?.map((part: MessagePart | any, index: number) => {
         if (part.type === "text") {
-          // Only render final text states to avoid duplicates during streaming
-          if (part.state && part.state !== "done") return null;
           const key = part.id ?? `${m.id}-text-${index}`;
           return (
             <div key={key} style={{ marginBottom: 12 }}>
@@ -69,9 +67,6 @@ const ThinkingRobot = () => (
 );
 
 export default function MessagesArea({ messages, status }: Props) {
-
-  // TODO - chat no longer streaming. 
-  // TODO - nicer "thinking" message
   
   return (
     <>
