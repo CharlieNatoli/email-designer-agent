@@ -85,7 +85,7 @@ export async function editMarketingEmail(
     writer.write({
       type: 'data-tool-run',
       id,
-      data: { tool: TOOL_NAME.EditMarketingEmail, status: TOOL_RUN_STATUS.starting, text: `Planning: ${userInstructions}\n` },
+      data: { tool: TOOL_NAME.EditMarketingEmail, status: TOOL_RUN_STATUS.starting, notes: `Planning: ${userInstructions}\n` },
     });
  
     // Resolve MJML to edit by scanning assistant message parts for DraftMarketingEmail or EditMarketingEmail tool outputs
@@ -107,7 +107,7 @@ export async function editMarketingEmail(
     writer.write({
       type: 'data-tool-run',
       id,
-      data: { tool: TOOL_NAME.EditMarketingEmail, status: TOOL_RUN_STATUS.starting, text: 'Taking screenshot…' },
+      data: { tool: TOOL_NAME.EditMarketingEmail, status: TOOL_RUN_STATUS.starting, notes: 'Taking screenshot…' },
     });
  
     const { buffer, base64 } = await renderEmailToPng(emailMjml);
