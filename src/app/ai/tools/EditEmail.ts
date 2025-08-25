@@ -33,6 +33,43 @@ export const editEmailToolDescription = `
 Edit an email based on a creative brief.
 `
 
+/**
+ * Extract email MJML from tool messages by scanning for DraftMarketingEmail and EditEmail tool outputs
+ */
+function extractEmailToEdit(modelMessages: ModelMessageWithEmailToolResults[], emailToEditID: string): string | undefined {
+  let emailMjml: string | undefined;
+  const validToolNames = [TOOL_NAME.DraftMarketingEmail, TOOL_NAME.EditEmail];
+  
+  try {
+    const toolMessages = modelMessages.filter((message: any) => message?.role === "tool");
+
+    for (const message of toolMessages) {
+      const contentArray = Array.isArray((message as any)?.content) ? (message as any).content : [];
+      for (const content of contentArray) {
+        if (
+          content &&
+          typeof content === "object" &&
+          (content as any).type === "tool-result" &&
+          validToolNames.includes((content as any).toolName)
+        ) {
+          const output = (content as any).output;
+          const value = output?.value;
+          console.log("[editEmail] content", JSON.stringify(content, null, 2));
+          if (value?.id === emailToEditID && typeof value?.artifact === "string") {
+            emailMjml = value.artifact;
+            break;
+          }
+        }
+      }
+      if (emailMjml) break;
+    }
+  } catch (err) {
+    console.error("[editEmail] Failed while scanning messages for tool output", err);
+  }
+  
+  return emailMjml;
+}
+
  
 export async function editEmail(
     writer: any, 
@@ -51,37 +88,11 @@ export async function editEmail(
       data: { tool: TOOL_NAME.EditEmail, status: TOOL_RUN_STATUS.starting, text: `Planning: ${userInstructions}\n` },
     });
  
-    // Resolve MJML to edit by scanning assistant message parts for the DraftMarketingEmail tool output
-    let emailMjml: string | undefined;
-    try {
-      const toolMessages = modelMessages.filter((message: any) => message?.role === "tool");
-
-      for (const message of toolMessages) {
-        const contentArray = Array.isArray((message as any)?.content) ? (message as any).content : [];
-        for (const content of contentArray) {
-          if (
-            content &&
-            typeof content === "object" &&
-            (content as any).type === "tool-result" &&
-            (content as any).toolName === TOOL_NAME.DraftMarketingEmail
-          ) {
-            const output = (content as any).output;
-            const value = output?.value;
-            console.log("[editEmail] content", JSON.stringify(content, null, 2));
-            if (value?.id === emailToEditID && typeof value?.artifact === "string") {
-              emailMjml = value.artifact;
-              break;
-            }
-          }
-        }
-        if (emailMjml) break;
-      }
-    } catch (err) {
-      console.error("[editEmail] Failed while scanning messages for tool output", err);
-    }
+    // Resolve MJML to edit by scanning assistant message parts for DraftMarketingEmail or EditEmail tool outputs
+    const emailMjml = extractEmailToEdit(modelMessages, emailToEditID);
 
     if (!emailMjml) {
-      const errorMsg = `Could not find DraftMarketingEmail output for email id ${emailToEditID}`;
+      const errorMsg = `Could not find DraftMarketingEmail or EditEmail output for email id ${emailToEditID}`;
       console.error("[editEmail]", errorMsg, { emailToEditID });
       writer.write({
         type: 'data-tool-run',
