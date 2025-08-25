@@ -4,7 +4,7 @@ import { useEffect, useId, useState } from "react";
 import EmailDraftInProgressNotice from "@/app/components/EmailDraftInProgressNotice";
 import OpenPreviewButton from "@/app/components/OpenPreviewButton";
 import PreviewDrawer from "@/app/components/PreviewDrawer";
-import { useCompiledMjml, usePreviewDrawer } from "@/app/components/tool_display/ToolDisplayBase";
+import { compileMjmlToHtml, usePreviewDrawer } from "@/app/components/tool_display/ToolDisplayBase";
 import HtmlPreviewTab from "@/app/components/tool_display/tabs/HtmlPreviewTab";
 import MjmlCodeTab from "@/app/components/tool_display/tabs/MjmlCodeTab";
 import { TOOL_RUN_STATUS, type ToolRunStatus } from "@/types/ai";
@@ -34,7 +34,7 @@ export default function DraftMarketingEmailToolDisplay({ status, output, text }:
   let compiledHtml = null;
  
   if (output) {
-    compiledHtml = useCompiledMjml(output);
+    compiledHtml = compileMjmlToHtml(output);
   }
 
   if (status === TOOL_RUN_STATUS.starting ) {

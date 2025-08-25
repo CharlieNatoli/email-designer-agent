@@ -2,7 +2,10 @@ import { renderEmailToPng } from "@/utils/screenshot";
 import { z } from "zod";
 import { anthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
-import { TOOL_NAME, TOOL_RUN_STATUS } from "@/types/ai";
+import { TOOL_NAME, TOOL_RUN_STATUS, type ModelMessageWithEmailToolResults } from "@/types/ai";
+
+
+
 
  export const EditToolInputSchema = z.object({
     userInstructions: z.string().describe("Repeat word for word the user's instructions for editing the email."),
@@ -34,9 +37,11 @@ Edit an email based on a creative brief.
 export async function editEmail(
     writer: any, 
     userInstructions: string, 
-    modelMessages: any[], 
+    modelMessages: ModelMessageWithEmailToolResults[], 
     emailToEditID: string, 
 ) {   
+
+  console.log("[editEmail] modelMessages", modelMessages);
 
     const id = crypto.randomUUID();
     // Start: show a persistent progress panel
@@ -49,21 +54,24 @@ export async function editEmail(
     // Resolve MJML to edit by scanning assistant message parts for the DraftMarketingEmail tool output
     let emailMjml: string | undefined;
     try {
-      const toolMessages = modelMessages.filter((message: any) => {
-        if (message?.role !== "tool") return false;
-        const contentArray = Array.isArray(message?.content) ? message.content : [];
-        return contentArray.some((part: any) =>
-          part?.type === "tool-result" && part?.toolName === "DraftMarketingEmail"
-        );
-      });
+      const toolMessages = modelMessages.filter((message: any) => message?.role === "tool");
 
       for (const message of toolMessages) {
-        const contentArray = Array.isArray(message?.content) ? message.content : [];
+        const contentArray = Array.isArray((message as any)?.content) ? (message as any).content : [];
         for (const content of contentArray) {
-          console.log("[editEmail] content", JSON.stringify(content, null, 2));
-          if (content?.type === "tool-result" && content?.output?.value?.id === emailToEditID) {
-            emailMjml = content?.output?.value?.artifact;
-            break;
+          if (
+            content &&
+            typeof content === "object" &&
+            (content as any).type === "tool-result" &&
+            (content as any).toolName === TOOL_NAME.DraftMarketingEmail
+          ) {
+            const output = (content as any).output;
+            const value = output?.value;
+            console.log("[editEmail] content", JSON.stringify(content, null, 2));
+            if (value?.id === emailToEditID && typeof value?.artifact === "string") {
+              emailMjml = value.artifact;
+              break;
+            }
           }
         }
         if (emailMjml) break;

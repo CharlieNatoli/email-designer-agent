@@ -1,9 +1,10 @@
 "use client";
 
 import { ReactNode } from "react";
+import { MessageRole } from "@/types/ai";
 
 type MessageBubbleProps = {
-  role: "user" | "assistant" | "system";
+  role: MessageRole
   children: ReactNode;
 };
 

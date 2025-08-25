@@ -2,17 +2,18 @@
 
 import MessageBubble from "@/app/components/MessageBubble";
 import DraftMarketingEmailToolDisplay from "@/app/components/tool_display/DraftMarketingEmailDisplay";
-import type { MessagePart, UIMessage } from "@/types/ai";
+import { TOOL_RUN_STATUS, type MessagePart, type UIMessage } from "@/types/ai";
 
 type Props = {
-  messages: any[];
+  messages: UIMessage[];
   status: string;
 };
 
-function renderMessage(m: UIMessage | any) {
+function renderMessage(m: UIMessage ) {
+
   return (
     <div key={m.id}>
-      {m.parts?.map((part: MessagePart | any, index: number) => {
+      {m.parts?.map((part: MessagePart , index: number) => {
         if (part.type === "text") {
           const key = part.id ?? `${m.id}-text-${index}`;
           return (
@@ -51,32 +52,25 @@ function renderMessage(m: UIMessage | any) {
   );
 }
 const ThinkingRobot = () => (
-  <div
-    className="chat-text-base chat-left-pad"
-    style={{ 
-      opacity: 0.7, 
-      marginTop: 8, 
-      display: 'flex', 
-      alignItems: 'center', 
-      gap: 8 
-    }}
-  > 
+  <div className="chat-text-base chat-left-pad row gap-8 text-muted mt-8">
     <i className="bi bi-robot chat-icon chat-bounce" />
     <span>Thinking...</span>
   </div>
 );
 
 export default function MessagesArea({ messages, status }: Props) {
+
+  console.log("[MessagesArea] messages", messages);
   
   return (
     <>
       {messages.length === 0 && (
-        <div style={{ opacity: 0.7, textAlign: "center", marginTop: 32, fontSize: 20, fontWeight: 600 }}> 
+        <div className="text-muted text-lg" style={{ textAlign: "center", marginTop: 32, fontWeight: 600 }}>
            Let's design a beautiful email together.
         </div>
       )}
-      {messages.map((m: any) => renderMessage(m))}
-      {status === "streaming" && (
+      {messages.map((m: UIMessage) => renderMessage(m))}
+      {status === TOOL_RUN_STATUS.streaming && (
         <ThinkingRobot />
       )}
     </>

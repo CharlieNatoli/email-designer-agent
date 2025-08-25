@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { TOOL_RUN_STATUS } from "@/types/ai";
 
 import ChatInput from "@/app/components/ChatInput";
 import ImageSidebar from "@/app/components/ImageSidebar";
@@ -31,7 +32,7 @@ export default function Home() {
       value={input}
       setValue={setInput}
       sendMessage={(text) => sendMessage({ text })}
-      isLoading={status === "streaming" || status === "submitted"}
+      isLoading={status === TOOL_RUN_STATUS.streaming }
     />
   );
 

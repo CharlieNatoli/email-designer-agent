@@ -1,5 +1,6 @@
 
 import { anthropic } from '@ai-sdk/anthropic';
+
 import { streamText } from 'ai';
 import { z } from 'zod';
 
@@ -33,6 +34,11 @@ General guidelines:
 export const draftMarketingEmailToolDescription = `
 Draft a marketing email based on a creative brief.
 `
+
+export type DraftMarketingEmailToolOutput = {
+  id: string;
+  artifact: string;
+} 
 
 
 export const DraftToolInputSchema = z.object({

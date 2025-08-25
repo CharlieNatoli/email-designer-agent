@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 // Global open-id registry so only one drawer across all tool displays can be open
 let currentOpenId: string | null = null;
@@ -38,7 +38,7 @@ export function usePreviewDrawer(instanceId: string) {
   };
 }
 
-export function useCompiledMjml(mjml: string | null ) {
+export function compileMjmlToHtml(mjml: string | null ) {
     if (!mjml) return null;
     const mjml2html = require("mjml-browser");
     const { html } = mjml2html(mjml);

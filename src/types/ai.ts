@@ -1,4 +1,5 @@
-// Shared types for AI tool-run events and message parts
+import type { ModelMessage } from "ai";
+
 
 export const TOOL_NAME = {
   DraftMarketingEmail: "DraftMarketingEmail",
@@ -35,10 +36,38 @@ export type TextPart = {
 
 export type MessagePart = TextPart | DataToolRunPart;
 
+export enum MessageRole {
+  user = "user",
+  assistant = "assistant",
+  system = "system",
+  tool = "tool",
+}
+
 export type UIMessage = {
   id: string;
-  role: "user" | "assistant" | "system" | "tool";
+  role: MessageRole;
   parts?: MessagePart[];
 };
 
+// Minimal tool-result content types for our two tools
+export type ToolArtifact = { id: string; artifact: string };
+
+export type DraftMarketingEmailToolResult = {
+  type: "tool-result";
+  toolName: typeof TOOL_NAME.DraftMarketingEmail;
+  output: { type: "json"; value: ToolArtifact };
+};
+
+export type EditEmailToolResult = {
+  type: "tool-result";
+  toolName: typeof TOOL_NAME.EditEmail;
+  output: { type: "json"; value: ToolArtifact };
+};
+
+export type AnyEmailToolResult = DraftMarketingEmailToolResult | EditEmailToolResult;
+
+// ModelMessage augmented to allow our tool results in the content array
+export type ModelMessageWithEmailToolResults = Omit<ModelMessage, "content"> & {
+  content?: Array<AnyEmailToolResult | unknown>;
+};
 
