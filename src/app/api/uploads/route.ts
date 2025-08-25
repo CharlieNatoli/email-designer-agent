@@ -156,8 +156,10 @@ export async function DELETE(req: NextRequest) {
 		return new NextResponse("Invalid filename", { status: 400 });
 	}
 	const filePath = path.join(uploadsDir, name);
+	const infoPath = path.join(infoDir, `${name.split(".")[0]}.json`);
 	try {
 		await fs.unlink(filePath);
+		await fs.unlink(infoPath);
 		// Best-effort: also remove corresponding image_info JSON
 		try {
 			const idOnly = name.split(".")[0];
