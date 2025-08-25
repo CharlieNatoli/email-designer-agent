@@ -17,7 +17,6 @@ type PreviewDrawerProps = {
   initialTabId?: string;
 };
 
-// todo - make prettier?
 export default function PreviewDrawer({ isOpen, onClose, tabs, initialTabId }: PreviewDrawerProps) {
   const firstTabId = useMemo(() => tabs[0]?.id, [tabs]);
   const [activeTabId, setActiveTabId] = useState<string>(initialTabId && tabs.some(t => t.id === initialTabId) ? initialTabId : firstTabId);
@@ -33,15 +32,15 @@ export default function PreviewDrawer({ isOpen, onClose, tabs, initialTabId }: P
         right: 0,
         bottom: 0,
         width: "520px",
-        background: "#fff",
-        color: "#111",
+        background: "var(--bg-light)",
+        color: "var(--text-light)",
         boxShadow: "-8px 0 24px rgba(0,0,0,0.4)",
         zIndex: 1000,
         display: "flex",
         flexDirection: "column",
       }}
     >
-      <div style={{ padding: 12, borderBottom: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ padding: 12, borderBottom: "1px solid var(--border-light-1)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ justifyContent: "flex-start", display: "flex", gap: 8 }}>
       {tabs.map((t) => {
           const isActive = t.id === activeTabId;
@@ -49,15 +48,7 @@ export default function PreviewDrawer({ isOpen, onClose, tabs, initialTabId }: P
             <button
               key={t.id}
               onClick={() => setActiveTabId(t.id)}
-              style={{
-                background: isActive ? "#111" : "#e5e7eb",
-                color: isActive ? "#fff" : "#111",
-                border: "none",
-                borderRadius: 6,
-                padding: "6px 10px",
-                cursor: "pointer",
-                fontSize: 13,
-              }}
+              className={`btn ${isActive ? 'btn--tab-active' : 'btn--tab'}`}
             >
               {t.label}
             </button>
@@ -66,21 +57,13 @@ export default function PreviewDrawer({ isOpen, onClose, tabs, initialTabId }: P
         </div>
         <button
           onClick={onClose}
-          style={{
-            background: "#ef4444",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            padding: "6px 10px",
-            cursor: "pointer",
-            fontSize: 13,
-          }}
+          className="btn btn--danger"
         >
           Close
         </button>
       </div> 
-      <div style={{ overflow: "auto", padding: 16, background: "#f8f8f8" }}>
-        <div style={{ maxWidth: 640, margin: "0 auto" }}>{active?.content}</div>
+      <div style={{ overflow: "auto", padding: 16, background: "var(--surface-light)" }}>
+        <div className="container-sm">{active?.content}</div>
       </div>
     </div>,
     document.body

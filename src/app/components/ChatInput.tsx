@@ -10,7 +10,7 @@ type ChatInputProps = {
   isLoading?: boolean;
 };
 
-export default function ChatInput({ value, setValue, placeholder = "Send a message…", sendMessage, isLoading = false }: ChatInputProps) {
+export default function ChatInput({ value, setValue, placeholder = "Describe your email idea…", sendMessage, isLoading = false }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const MAX_ROWS = 5;
@@ -40,18 +40,14 @@ export default function ChatInput({ value, setValue, placeholder = "Send a messa
         bottom: 0,
         width: "100%",
         gridColumn: "1 / span 1",
-        background: "linear-gradient(180deg, rgba(32,33,35,0) 0%, #202123 40%)",
+        background: "linear-gradient(180deg, rgba(32,33,35,0) 0%, var(--bg) 40%)",
         padding: "16px 0 24px",
       }}
     >
-      <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px" }}>
+      <div className="container">
         <div
-          style={{
-            backgroundColor: "#343541",
-            borderRadius: 12,
-            padding: 8,
-            border: "1px solid #3f4147",
-          }}
+          className="card-dark"
+          style={{ padding: 8 }}
         >
           <textarea
             ref={textareaRef}
@@ -67,13 +63,9 @@ export default function ChatInput({ value, setValue, placeholder = "Send a messa
               }
             }}
             disabled={isLoading}
+            className="textarea-reset chat-text-base"
             style={{
               width: "100%",
-              background: "transparent",
-              color: "#ECECEC",
-              border: "none",
-              outline: "none",
-              resize: "none",
               fontSize: 16,
               lineHeight: `${LINE_HEIGHT}px`,
               minHeight: `${LINE_HEIGHT}px`,

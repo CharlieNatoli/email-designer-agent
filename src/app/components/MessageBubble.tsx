@@ -18,11 +18,7 @@ export default function MessageBubble({ role, children }: MessageBubbleProps) {
       }}
     >
       <div
-        className="chat-bubble-base"
-        style={{
-          backgroundColor: isUser ? "#343541" : "#444654",
-          maxWidth: "80%",
-        }}
+        className={`chat-bubble-base bubble ${isUser ? "bubble-user" : "bubble-assistant"}`}
       >
         {children}
       </div>

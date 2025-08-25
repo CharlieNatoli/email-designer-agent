@@ -98,7 +98,7 @@ export async function editEmail(
 
     const result =  streamText({
         model: anthropic('claude-sonnet-4-20250514'),
-        system: editEmailSystemPrompt, // TODO - add image context
+        system: editEmailSystemPrompt,
         messages: [
             {
                 role: "user",

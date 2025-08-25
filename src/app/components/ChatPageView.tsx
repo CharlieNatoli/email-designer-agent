@@ -18,8 +18,6 @@ export default function ChatPageView({ sidebar, messagesArea, inputArea }: Props
         display: "grid",
         gridTemplateColumns: "150px 1fr",
         gridTemplateRows: "1fr auto",
-        backgroundColor: "#202123",
-        color: "#ECECEC",
       }}
     >
       <div style={{ gridRow: "1 / span 2", gridColumn: 1, minWidth: 150 }}>
@@ -34,7 +32,7 @@ export default function ChatPageView({ sidebar, messagesArea, inputArea }: Props
           gridColumn: 2,
         }}
       >
-        <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px" }}>
+        <div className="container">
           {messagesArea}
         </div>
       </div>

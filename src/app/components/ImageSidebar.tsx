@@ -53,6 +53,8 @@ const DragAndDropArea = (
 )
 }
 
+
+// TODO - why is image upload so slow?
 const AnalyzingImageNotice = () => {
   const styles = {
     overlay: { 
@@ -133,7 +135,7 @@ const ImagePreview = (
         <img
           src={`/uploads/${item.name}`}
           alt={item.name}
-          style={{ width: "100%", height: 150, objectFit: "cover", borderRadius: 6, border: "1px solid #2d2f36" }}
+          className="thumb"
         />
       </button>
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
@@ -158,6 +160,7 @@ const DeleteButton = ({ hovered, item, handleDelete }: { hovered: string | null,
         <button
           onClick={() => handleDelete(item.name)}
           title="Delete"
+          className="btn"
           style={{
             background: "rgba(0,0,0,0.55)",
             border: "1px solid #444",
@@ -165,7 +168,6 @@ const DeleteButton = ({ hovered, item, handleDelete }: { hovered: string | null,
             borderRadius: 30,
             width: 30,
             height: 30,
-            cursor: "pointer",
           }}
         >
           ×
@@ -210,29 +212,13 @@ const ImagePreviewPopout = ({ item, onClose }: { item: UploadItem, onClose: () =
   return (
     <div
       onClick={onClose}
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(0,0,0,0.6)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 50,
-      }}
+      className="backdrop"
+      style={{ display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{
-          background: "#181a1f",
-          border: "1px solid #2a2b31",
-          borderRadius: 10,
-          maxWidth: "80vw",
-          maxHeight: "80vh",
-          padding: 10,
-        }}
+        className="modal-dark"
+        style={{ maxWidth: "80vw", maxHeight: "80vh" }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
           <div style={{ color: "#c9c9d1", fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "60vw" }}>{item.name}</div>
@@ -323,8 +309,8 @@ export default function ImageSidebar() {
     <div
       style={{
         width: 200,
-        backgroundColor: "#1e1f24",
-        borderRight: "1px solid #2a2b31",
+        backgroundColor: "var(--surface-3)",
+        borderRight: "1px solid var(--border-dark-2)",
         height: "100%",
         display: "flex",
         flexDirection: "column",

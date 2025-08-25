@@ -24,15 +24,7 @@ function MjmlCodeTabInternal({ mjml }: Props) {
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
         <button
           onClick={handleCopy}
-          style={{
-            background: copied ? "#16a34a" : "#111827",
-            color: "#fff",
-            border: "none",
-            borderRadius: 6,
-            padding: "6px 10px",
-            cursor: "pointer",
-            fontSize: 13,
-          }}
+          className={`btn ${copied ? 'btn--success' : 'btn--primary-dark'}`}
         >
           {copied ? "Copied" : "Copy MJML code"}
         </button>
@@ -44,14 +36,14 @@ function MjmlCodeTabInternal({ mjml }: Props) {
           width: "100%", 
           height: "100vh",
           resize: "vertical",
-          border: "1px solid #e5e7eb",
+          border: "1px solid var(--border-light-1)",
           borderRadius: 8,
           padding: 12,
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
           fontSize: 13,
           lineHeight: "18px",
-          background: "#fff",
-          color: "#111",
+          background: "var(--bg-light)",
+          color: "var(--text-light)",
           whiteSpace: "pre",
         }}
       />
