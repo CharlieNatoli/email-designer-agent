@@ -3,7 +3,7 @@ import type { ModelMessage } from "ai";
 
 export const TOOL_NAME = {
   DraftMarketingEmail: "DraftMarketingEmail",
-  EditEmail: "EditEmail",
+  EditMarketingEmail: "EditMarketingEmail",
 } as const;
 export type ToolName = typeof TOOL_NAME[keyof typeof TOOL_NAME];
 
@@ -58,13 +58,13 @@ export type DraftMarketingEmailToolResult = {
   output: { type: "json"; value: ToolArtifact };
 };
 
-export type EditEmailToolResult = {
+export type EditMarketingEmailToolResult = {
   type: "tool-result";
-  toolName: typeof TOOL_NAME.EditEmail;
+  toolName: typeof TOOL_NAME.EditMarketingEmail;
   output: { type: "json"; value: ToolArtifact };
 };
 
-export type AnyEmailToolResult = DraftMarketingEmailToolResult | EditEmailToolResult;
+export type AnyEmailToolResult = DraftMarketingEmailToolResult | EditMarketingEmailToolResult;
 
 // ModelMessage augmented to allow our tool results in the content array
 export type ModelMessageWithEmailToolResults = Omit<ModelMessage, "content"> & {

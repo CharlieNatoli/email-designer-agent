@@ -16,7 +16,7 @@ type Props = {
   text?: string;
 };
 
-export default function DraftMarketingEmailToolDisplay({ status, output, text }: Props) {
+export default function MarketingEmailDisplay({ status, output, text }: Props) {
   const instanceId = useId();
   const { isOpen, open, close } = usePreviewDrawer(instanceId);
 

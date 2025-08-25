@@ -1,8 +1,8 @@
 "use client";
 
 import MessageBubble from "@/app/components/MessageBubble";
-import DraftMarketingEmailToolDisplay from "@/app/components/tool_display/DraftMarketingEmailDisplay";
-import { TOOL_RUN_STATUS, type MessagePart, type UIMessage } from "@/types/ai";
+import MarketingEmailDisplay from "@/app/components/tool_display/MarketingEmailDisplay";
+import { TOOL_NAME, TOOL_RUN_STATUS, type MessagePart, type UIMessage } from "@/types/ai";
 
 type Props = {
   messages: UIMessage[];
@@ -24,20 +24,10 @@ function renderMessage(m: UIMessage ) {
             </div>
           );
         } else if (part.type === "data-tool-run") {
-          if (part.data?.tool === "DraftMarketingEmail") {
+          if (part.data?.tool === TOOL_NAME.DraftMarketingEmail || part.data?.tool === TOOL_NAME.EditMarketingEmail) {
             return (
               <div key={part.id} style={{ marginBottom: 12 }}>
-                <DraftMarketingEmailToolDisplay
-                  text={part.data?.text}
-                  output={part.data?.final}
-                  status={part.data?.status}
-                />
-              </div>
-            );
-          } else if (part.data?.tool === "EditEmail") {
-            return (
-              <div key={part.id} style={{ marginBottom: 12 }}>
-                <DraftMarketingEmailToolDisplay
+                <MarketingEmailDisplay
                   text={part.data?.text}
                   output={part.data?.final}
                   status={part.data?.status}

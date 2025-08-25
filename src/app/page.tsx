@@ -9,7 +9,7 @@ import { TOOL_RUN_STATUS } from "@/types/ai";
 import ChatInput from "@/app/components/ChatInput";
 import ImageSidebar from "@/app/components/ImageSidebar";
 import ChatPageView from "@/app/components/ChatPageView"; 
-import MessagesArea from "@/app/components/messagesArea";
+import MessagesArea from "@/app/components/MessagesArea";
 
 
 export default function Home() {
