@@ -1,7 +1,7 @@
 import { createUIMessageStream, streamText } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic'; 
 import {  draftMarketingEmail, draftMarketingEmailToolDescription, DraftToolInputSchema } from '@/app/ai/tools/DraftMarketingEmail';
-import { readAllImageInfo, formatImageInfoForSystemPrompt } from '@/lib/imageInfo';
+import { getImageContextForSystemPrompt } from '@/lib/imageInfo';
 
 import { convertToModelMessages } from 'ai';
 import { editEmail, editEmailToolDescription, EditToolInputSchema } from '@/app/ai/tools/EditEmail';
@@ -23,8 +23,7 @@ export async function POST(request: Request) {
 
   const modelMessages = convertToModelMessages(messages) as ModelMessageWithEmailToolResults[];
 
-  const imageInfos = await readAllImageInfo();
-  const imageContext = formatImageInfoForSystemPrompt(imageInfos);
+  const imageContext = await getImageContextForSystemPrompt();
 
   const stream = createUIMessageStream({
     async execute({ writer }) {

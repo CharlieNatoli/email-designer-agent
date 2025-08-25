@@ -4,7 +4,7 @@ import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 import { z } from 'zod';
 
-import { readAllImageInfo, formatImageInfoForSystemPrompt } from "@/lib/imageInfo"; 
+import { getImageContextForSystemPrompt } from "@/lib/imageInfo"; 
 
 export const draftMarketingEmailSystemPrompt = `You are a creative email design bot. Your job is to draft marketing emails that will be reviewed by a human marketing designer. 
 These emails should fit well into the company's brand style, but also be unique and interesting. The goal is to give new ideas to the marketing team that they can take inspiration from. 
@@ -55,8 +55,7 @@ export async function draftMarketingEmail(writer: any, brief: string) {
       data: {  tool: 'DraftMarketingEmail', status: 'starting', text: `Planning: ${brief}\n` },
     });
 
-    const imageInfos = await readAllImageInfo();
-    const imageContext = formatImageInfoForSystemPrompt(imageInfos);
+    const imageContext = await getImageContextForSystemPrompt();
 
 
     const result =  streamText({

@@ -60,6 +60,11 @@ export function formatImageInfoForSystemPrompt(infos: ImageInfo[]): string {
   return `Available uploaded images (use filename to reference images):\n${parts.join('\n')}`;
 }
 
+export async function getImageContextForSystemPrompt(): Promise<string> {
+  const imageInfos = await readAllImageInfo();
+  return formatImageInfoForSystemPrompt(imageInfos);
+}
+
 
 
 
