@@ -80,37 +80,26 @@ const AnalyzingImageNotice = () => {
       padding: '8px 16px',
       borderRadius: 20,
       backdropFilter: 'blur(5px)',
-    },
-    svg: {
-      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
-      animation: 'pulse 1.2s ease-in-out infinite',
-    }
+      animation: 'analyzingPulse 1.2s ease-in-out infinite',  
+    },  
   };
 
   return (
     <div 
-      style={styles.overlay} 
-    >
-      <style>
-        {`@keyframes pulse {
-          0%, 100% { opacity: 0.85; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.05); }
-        }`}
-      </style>
-      <svg
-        aria-label="Analyzing image"
-        width="54"
-        height="54"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={styles.svg}
-      >
-        <circle cx="11" cy="11" r="6.5" stroke="white" strokeWidth="1.5" />
-        <circle cx="9.5" cy="9.5" r="0.8" fill="white" />
-        <path d="M15.5 15.5L19.8 19.8" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-      <div style={styles.text}>Analyzing image</div>
+        
+    style={{
+      ...styles.overlay
+    }}
+    > 
+      <div style={styles.text}> 
+          <span>Analyzing image</span> 
+      </div>
+      <style jsx global>{`
+        @keyframes analyzingPulse {
+          0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+          50% { transform: translateX(-50%) scale(1.03); opacity: 0.9; }
+        }
+      `}</style>
     </div>
   );
 };
@@ -122,6 +111,8 @@ const ImagePreview = (
   const [hovered, setHovered] = useState<string | null>(null);
   const id = item.name.split(".")[0];
   const isReady = readyIds.has(id);
+
+  console.log("isReady", isReady);
 
   return (
     <div
@@ -277,6 +268,26 @@ export default function ImageSidebar() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // Poll for readiness while any uploaded images are still being analyzed
+  useEffect(() => {
+    const itemIds = new Set(items.map((it) => it.name.split(".")[0]));
+    if (itemIds.size === 0) return;
+
+    const allReady = Array.from(itemIds).every((id) => readyIds.has(id));
+    if (allReady) return;
+
+    const interval = setInterval(() => {
+      const nowAllReady = Array.from(itemIds).every((id) => readyIds.has(id));
+      if (nowAllReady) {
+        clearInterval(interval);
+        return;
+      }
+      refresh();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [items, readyIds, refresh]);
 
   const onDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();

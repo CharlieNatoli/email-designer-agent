@@ -9,8 +9,6 @@ type OpenPreviewButtonProps = {
 
 export default function OpenPreviewButton({ onOpen, disabled = false, draftCompleted = false}: OpenPreviewButtonProps) {
 
-  console.log("draftCompleted", draftCompleted);
-  
   return (
     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
       <button

@@ -18,15 +18,13 @@ export async function renderEmailToPng(mjml: string) {
         console.error('[renderEmailToPng] Failed to import/use mjml', error);
         throw error;
     }
-    // console.log("[renderEmailToPng] launching browser");
             
     const browser = await chromium.launch({headless: true}); // set headless: true by default
-    // console.log("[renderEmailToPng] browser launched");
+
     const page = await browser.newPage({
         viewport: { width: 600, height: 2000} // tweak as needed
     });
 
-    // console.log("[renderEmailToPng] page", page);
     // Inject a base URL so root-relative assets like /uploads/* resolve correctly
     const baseHref = '<base href="http://localhost:3000/">';
     if (/<head[^>]*>/i.test(html)) {

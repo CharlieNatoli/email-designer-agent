@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
 					suggested_alt_text: z.string().min(3).max(200).describe("Concise single-sentence alt text."),
 				});
 				const analysis = await generateObject({
-					model: openai('gpt-4o'),
+					model: openai('gpt-5-mini'),
 					schema: extractSchema,
 					messages: [
 						{
