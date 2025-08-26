@@ -7,16 +7,17 @@ import PreviewDrawer from "@/app/components/PreviewDrawer";
 import { compileMjmlToHtml, usePreviewDrawer } from "@/app/components/tool_display/ToolDisplayBase";
 import HtmlPreviewTab from "@/app/components/tool_display/tabs/HtmlPreviewTab";
 import MjmlCodeTab from "@/app/components/tool_display/tabs/MjmlCodeTab";
-import { TOOL_RUN_STATUS, type ToolRunStatus } from "@/types/ai";
+import { TOOL_RUN_STATUS, TOOL_NAME, type ToolRunStatus } from "@/types/ai";
 
 
 type Props = {
+  toolName: typeof TOOL_NAME.DraftMarketingEmail | typeof TOOL_NAME.EditMarketingEmail;
   status: ToolRunStatus;
   output?: string;
   text?: string;
 };
 
-export default function MarketingEmailDisplay({ status, output, text }: Props) {
+export default function MarketingEmailDisplay({ toolName, status, output, text }: Props) {
   const instanceId = useId();
   const { isOpen, open, close } = usePreviewDrawer(instanceId);
 
@@ -44,7 +45,7 @@ export default function MarketingEmailDisplay({ status, output, text }: Props) {
   // completed
   return (
     <>
-      <OpenPreviewButton onOpen={() => open()} disabled={false} draftCompleted={TOOL_RUN_STATUS.done === status} />
+      <OpenPreviewButton onOpen={() => open()} disabled={false} draftCompleted={TOOL_RUN_STATUS.done === status} toolName={toolName} />
       <PreviewDrawer
         isOpen={Boolean(isOpen)}
         onClose={close}

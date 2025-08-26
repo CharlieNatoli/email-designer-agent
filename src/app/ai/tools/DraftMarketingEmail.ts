@@ -48,12 +48,7 @@ export const DraftToolInputSchema = z.object({
 export async function draftMarketingEmail(writer: any, brief: string) {
  
     const id = crypto.randomUUID();
-    // Start: show a persistent progress panel
-    writer.write({
-      type: 'data-tool-run',
-      id,
-      data: {  tool: 'DraftMarketingEmail', status: 'starting', text: `Planning: ${brief}\n` },
-    });
+    
 
     const imageContext = await getImageContextForSystemPrompt();
 

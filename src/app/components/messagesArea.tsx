@@ -28,6 +28,7 @@ function renderMessage(m: UIMessage ) {
             return (
               <div key={part.id} style={{ marginBottom: 12 }}>
                 <MarketingEmailDisplay
+                  toolName={part.data?.tool}
                   text={part.data?.text}
                   output={part.data?.final}
                   status={part.data?.status}
