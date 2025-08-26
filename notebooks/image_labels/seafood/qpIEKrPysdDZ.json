@@ -1,9 +1,9 @@
 {
-  "image_contents": "Split layout. Left side: Light blue background with dark blue heading text at the top, smaller dark blue paragraph text in the middle, and an orange button with white text at the bottom. Right side: Photograph of a plated dish containing avocado mash, a seasoned piece of Chilean seabass, and citrus,",
+  "image_contents": "Split layout. Left half: light blue background with two lines of large blue text at the top, paragraph text in the middle, and an orange button labeled 'Read Now' at the bottom. Right half: photograph of a plated dish featuring seared Chilean seabass on avocado mash with a citrus fennel salad.",
   "overlay_text": "Chilean Seabass with Avocado Mash & Citrus Fennel Salad\nDiscover a bright, summery preparation for this month\u2019s featured catch, created by an award-winning chef and cookbook author.\nRead Now",
   "image_good_for": [
     "pre-edited multi-part section"
   ],
-  "suggested_alt_text": "Chilean seabass served with avocado mash and citrus fennel salad next to descriptive text and a 'Read Now' button.",
-  "dimensions": "640px X 360px"
+  "suggested_alt_text": "Chilean seabass with avocado mash and citrus fennel salad on a split layout with text and a 'Read Now' button.",
+  "dimensions": "400px X 225px"
 }

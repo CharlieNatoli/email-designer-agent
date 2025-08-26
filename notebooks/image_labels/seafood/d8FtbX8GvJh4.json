@@ -1,9 +1,9 @@
 {
-  "image_contents": "Single image centered with orange and gray text.",
+  "image_contents": "Single image with text. Center: text logo with orange main heading and smaller gray text below.",
   "overlay_text": "Vital Choice WILD SEAFOOD & ORGANICS",
   "image_good_for": [
     "logo"
   ],
-  "suggested_alt_text": "Vital Choice logo with the tagline 'Wild Seafood & Organics.'",
-  "dimensions": "600px X 100px"
+  "suggested_alt_text": "Vital Choice logo with Wild Seafood & Organics tagline.",
+  "dimensions": "400px X 67px"
 }

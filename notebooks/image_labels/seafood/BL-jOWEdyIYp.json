@@ -1,9 +1,9 @@
 {
-  "image_contents": "Split layout. Left half: photograph of two fishing boats on the sea with birds in the sky. Right half: light blue panel with black heading text at top, black paragraph text in middle, orange button with white text at bottom.",
-  "overlay_text": "Celebrating 24 Years\nSince 2001, Vital Choice has been delivering premium wild seafood to tables across the country, long before we joined the 1-800-Flowers.com\nRead Now",
+  "image_contents": "Split layout. Left half: photograph of two fishing boats on the water with seagulls in the sky. Right half: light blue panel with 'Celebrating 24 Years' in black heading text, followed by a paragraph of black text, and an orange button labeled 'Read Now' at the bottom.",
+  "overlay_text": "Celebrating 24 Years Since 2001, Vital Choice has been delivering premium wild seafood to tables across the country, long before we joined the 1-800-Flowers.com Read Now",
   "image_good_for": [
-    "pre-edited multi-part section"
+    "top of email hero image"
   ],
-  "suggested_alt_text": "Fishing boats on the sea next to a message celebrating 24 years of Vital Choice.",
-  "dimensions": "640px X 360px"
+  "suggested_alt_text": "Fishing boats on water next to text celebrating Vital Choice's 24 years.",
+  "dimensions": "400px X 225px"
 }

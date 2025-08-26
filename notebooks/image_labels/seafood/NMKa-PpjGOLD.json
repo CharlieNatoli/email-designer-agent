@@ -1,9 +1,9 @@
 {
-  "image_contents": "Single horizontal layout. Left section: logo with text 'CELEBRATIONS PASSPORT.' Right section: text 'Enjoy a full year of FREE SHIPPING+ as a member! Join Now>' on white background.",
-  "overlay_text": "CELEBRATIONS PASSPORT Enjoy a full year of FREE SHIPPING+ as a member! Join Now>",
+  "image_contents": "Single text overlay on white background with logo on left and promotional text across the center and right.",
+  "overlay_text": "CELEBRATIONS PASSPORT Enjoy a full year of FREE SHIPPING* as a member! Join Now>",
   "image_good_for": [
     "banner"
   ],
-  "suggested_alt_text": "Celebrations Passport offer for free shipping as a member.",
-  "dimensions": "640px X 62px"
+  "suggested_alt_text": "Promotional banner for Celebrations Passport with free shipping offer.",
+  "dimensions": "400px X 39px"
 }
