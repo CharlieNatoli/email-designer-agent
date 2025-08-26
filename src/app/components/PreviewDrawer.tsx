@@ -15,9 +15,10 @@ type PreviewDrawerProps = {
   onClose: () => void;
   tabs: PreviewTab[];
   initialTabId?: string;
+  onActiveTabChange?: (id: string) => void;
 };
 
-export default function PreviewDrawer({ isOpen, onClose, tabs, initialTabId }: PreviewDrawerProps) {
+export default function PreviewDrawer({ isOpen, onClose, tabs, initialTabId, onActiveTabChange }: PreviewDrawerProps) {
   const firstTabId = useMemo(() => tabs[0]?.id, [tabs]);
   const [activeTabId, setActiveTabId] = useState<string>(initialTabId && tabs.some(t => t.id === initialTabId) ? initialTabId : firstTabId);
 
@@ -47,7 +48,10 @@ export default function PreviewDrawer({ isOpen, onClose, tabs, initialTabId }: P
           return (
             <button
               key={t.id}
-              onClick={() => setActiveTabId(t.id)}
+              onClick={() => {
+                setActiveTabId(t.id);
+                onActiveTabChange && onActiveTabChange(t.id);
+              }}
               className={`btn ${isActive ? 'btn--tab-active' : 'btn--tab'}`}
             >
               {t.label}

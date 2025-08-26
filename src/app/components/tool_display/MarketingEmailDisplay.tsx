@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react"; 
+import { useEffect, useId, useMemo, useState } from "react"; 
 import EmailDraftInProgressNotice from "@/app/components/EmailDraftInProgressNotice";
 import OpenPreviewButton from "@/app/components/OpenPreviewButton";
 import PreviewDrawer from "@/app/components/PreviewDrawer";
@@ -22,6 +22,7 @@ export default function MarketingEmailDisplay({ toolName, status, output, text }
   const { isOpen, open, close } = usePreviewDrawer(instanceId);
 
   const [runningText, setRunningText] = useState(text); 
+  const [activeTabId, setActiveTabId] = useState<string | null>(null);
 
   useEffect(() => {
     if (text) {
@@ -32,29 +33,35 @@ export default function MarketingEmailDisplay({ toolName, status, output, text }
     }
   }, [text, output]);
 
-  let compiledHtml = null;
- 
-  if (output) {
-    compiledHtml = compileMjmlToHtml(output);
-  }
+  const compiledHtml = useMemo(() => {
+    if (!isOpen) return null;
+    if (activeTabId !== "preview") return null;
+    if (!output) return null;
+    return compileMjmlToHtml(output);
+  }, [isOpen, activeTabId, output]);
 
+  const startingText = toolName === TOOL_NAME.DraftMarketingEmail ? "Starting email draft…" : "Starting email edit…";
   if (status === TOOL_RUN_STATUS.starting ) {
-    return  <EmailDraftInProgressNotice />
+    return  <EmailDraftInProgressNotice text={startingText} />
   }
 
   // completed
   return (
     <>
-      <OpenPreviewButton onOpen={() => open()} disabled={false} draftCompleted={TOOL_RUN_STATUS.done === status} toolName={toolName} />
-      <PreviewDrawer
-        isOpen={Boolean(isOpen)}
-        onClose={close}
-        tabs={[
-          ...(compiledHtml ? [{ id: "preview", label: "Preview", content: <HtmlPreviewTab compiledHtml={compiledHtml} /> }] : []),
-          ...(runningText ? [{ id: "mjml", label: "MJML", content: <MjmlCodeTab mjml={runningText} /> }] : []),
-        ]}
-        initialTabId="preview"
-      />
+      <OpenPreviewButton onOpen={() => { setActiveTabId("preview"); open(); }} disabled={false} draftCompleted={TOOL_RUN_STATUS.done === status} toolName={toolName} />
+      {/* Only build tabs and heavy children when drawer is open */}
+      {isOpen ? (
+        <PreviewDrawer
+          isOpen={Boolean(isOpen)}
+          onClose={close}
+          tabs={[
+            ...(output ? [{ id: "preview", label: "Preview", content: compiledHtml ? <HtmlPreviewTab compiledHtml={compiledHtml} /> : null }] : []),
+            ...(runningText ? [{ id: "mjml", label: "MJML", content: <MjmlCodeTab mjml={runningText} /> }] : []),
+          ]}
+          initialTabId="preview"
+          onActiveTabChange={(id) => setActiveTabId(id)}
+        />
+      ) : null}
     </>
   );
 }
