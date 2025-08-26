@@ -48,4 +48,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/notebooks
+# notebooks
+notebooks/venv/
+notebooks/generated_emails/
+notebooks/.ipynb_checkpoints/
