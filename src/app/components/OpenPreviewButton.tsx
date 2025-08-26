@@ -14,7 +14,8 @@ export default function OpenPreviewButton({ onOpen, disabled = false, draftCompl
 
 
   const EmailInProgressText = toolName === TOOL_NAME.DraftMarketingEmail ? "Drafting email..." : "Editing email...";
-  const EmailCompletedText = toolName === TOOL_NAME.EditMarketingEmail ? "View edited email draft." : "View email draft";
+  const EmailCompletedText = toolName === TOOL_NAME.DraftMarketingEmail ? "View email draft" : "View edited email draft." ;
+  const backgroundColor = toolName === TOOL_NAME.DraftMarketingEmail ? "#10B981" : "#60C5F7";
   return (
     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
       <button
@@ -22,7 +23,7 @@ export default function OpenPreviewButton({ onOpen, disabled = false, draftCompl
         onClick={onOpen}
         disabled={disabled}
         style={{
-          background: "#10B981",
+          background: backgroundColor,
           border: "none", 
           cursor: disabled ? "not-allowed" : "pointer",
           opacity: disabled ? 0.7 : 1,

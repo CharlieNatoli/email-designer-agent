@@ -39,12 +39,12 @@ Edit an email based on a creative brief.
 function extractEmailToEdit(modelMessages: ModelMessageWithEmailToolResults[], emailToEditID: string): string | undefined {
   let emailMjml: string | undefined;
   const validToolNames = [TOOL_NAME.DraftMarketingEmail, TOOL_NAME.EditMarketingEmail];
-  
+
   try {
-    const toolMessages = modelMessages.filter((message: any) => message?.role === "tool");
+    const toolMessages = modelMessages.filter((message: any) => message?.role === "tool"); 
 
     for (const message of toolMessages) {
-      const contentArray = Array.isArray((message as any)?.content) ? (message as any).content : [];
+      const contentArray = Array.isArray((message as any)?.content) ? (message as any).content : []; 
       for (const content of contentArray) {
         if (
           content &&
@@ -111,12 +111,9 @@ export async function editMarketingEmail(
     });
  
     const { buffer, base64 } = await renderEmailToPng(emailMjml);
-    console.log("[draftMarketingEmail] rendering", buffer);
-
-
 
     const result =  streamText({
-        model: anthropic('claude-opus-20250219'),
+        model: anthropic('claude-opus-4-1-20250805'),
         system: editMarketingEmailSystemPrompt,
         messages: [
             {

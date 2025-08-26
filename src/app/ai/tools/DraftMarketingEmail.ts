@@ -54,7 +54,7 @@ export async function draftMarketingEmail(writer: any, brief: string) {
 
 
     const result =  streamText({
-      model: anthropic('claude-sonnet-4-20250514'),
+      model: anthropic('claude-opus-4-1-20250805'),
       system: draftMarketingEmailSystemPrompt.replace('{imageContext}', imageContext), 
       prompt: brief,
 
