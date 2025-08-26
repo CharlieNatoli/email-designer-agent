@@ -1,9 +1,9 @@
 {
-  "image_contents": "Grid layout with four rows and four columns of fabric swatch pinwheels; several have 'SOLD OUT' text overlay, and 'cotton cuts' logo text at the bottom right.",
-  "overlay_text": "SOLD OUT\ncotton cuts",
+  "image_contents": "Grid of twelve circular fabric swatch sets, each comprising various patterns and colors, with 'SOLD OUT' overlay on some; 'cotton cuts' logo at bottom right.",
+  "overlay_text": "SOLD OUT SOLD OUT SOLD OUT SOLD OUT cotton cuts",
   "image_good_for": [
     "product photography"
   ],
-  "suggested_alt_text": "Grid of colorful fabric swatch pinwheels with some marked as sold out, and Cotton Cuts logo at the bottom.",
-  "dimensions": "1080px X 1080px"
+  "suggested_alt_text": "A grid of colorful fabric swatch sets with some marked as 'sold out' and a cotton cuts logo at the bottom.",
+  "dimensions": "400px X 400px"
 }

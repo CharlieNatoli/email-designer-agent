@@ -1,9 +1,9 @@
 {
-  "image_contents": "Grid of twenty colored swatches with various fall-themed patterns, with text at the bottom center on a brown background.",
+  "image_contents": "Grid of 20 patterned squares with a variety of floral and striped designs, plus large text at bottom.",
   "overlay_text": "HAPPY FALL DAYS by Kelsey Carlson",
   "image_good_for": [
-    "top of email hero image"
+    "banner"
   ],
-  "suggested_alt_text": "A grid of fall-themed patterned swatches with the text 'Happy Fall Days by Kelsey Carlson' at the bottom.",
-  "dimensions": "507px X 514px"
+  "suggested_alt_text": "Grid of fall-themed patterned squares with floral and striped designs.",
+  "dimensions": "395px X 400px"
 }
