@@ -16,7 +16,7 @@ You are looking for the "id" field of the message.`),
  });
 
  export const editMarketingEmailSystemPrompt = `
- Please help the user edit an email. You will be given the MJML code of thhe email, a screenshot of the email, and the user's instructions for editing the email.
+ Please help the user edit an email. You will be given the MJML code of thhe email, a screenshot of the email, and the user's instructions for what to change.
 
 Edit the email to match the user's instructions. DO NOT make any other changes to the email.
 
@@ -116,7 +116,7 @@ export async function editMarketingEmail(
 
 
     const result =  streamText({
-        model: anthropic('claude-sonnet-4-20250514'),
+        model: anthropic('claude-opus-20250219'),
         system: editMarketingEmailSystemPrompt,
         messages: [
             {
