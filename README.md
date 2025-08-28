@@ -1,4 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Introduction 
+
+For this project, I wanted to build a tool that can design professional looking and creative marketing emails using MJML. 
+
+Tool includes: 
+- *Image upload*: Upload image assets to be used in the email. These are almost always key parts of an email being sent out. An LLM generates a description of the contents, layout,a nd style of the image to help it be used in email creation. 
+- *Chat interface*: talk to an LLM as you design your email. 
+- *Email builder tools*: two tools - one to draft emails, and one to make edits to an existing email using vision LLMs.
+- *Notebooks folder* - `/notebooks` includes the analysis done to decide on a set of prompts and base LLM.
+
+## 
+
+Ask the tool to draft an email 
+
+<img src="https://github.com/CharlieNatoli/email-designer-agent/blob/master/assets/draft_email_screenshot.png" alt="drawing" width="75%"/>
+
+
+Email display
+
+<img src="https://github.com/CharlieNatoli/email-designer-agent/blob/master/assets/email_example.png" alt="drawing" width="75%"/>
+
+Editing an email previously created
+
+
+<img src="https://github.com/CharlieNatoli/email-designer-agent/blob/master/assets/ask_to_edit.png" alt="drawing" width="75%"/>
+
 
 ## Getting Started
 
@@ -15,22 +40,3 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
