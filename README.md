@@ -8,21 +8,23 @@ Tool includes:
 - *Email builder tools*: two tools - one to draft emails, and one to make edits to an existing email using vision LLMs.
 - *Notebooks folder* - `/notebooks` includes the analysis done to decide on a set of prompts and base LLM.
 
-## 
+## Project screenshots
 
-Ask the tool to draft an email 
-
-<img src="https://github.com/CharlieNatoli/email-designer-agent/blob/master/assets/draft_email_screenshot.png" alt="drawing" width="75%"/>
+### Ask the tool to draft an email 
 
 
-Email display
-
-<img src="https://github.com/CharlieNatoli/email-designer-agent/blob/master/assets/email_example.png" alt="drawing" width="75%"/>
-
-Editing an email previously created
+<img src="https://github.com/CharlieNatoli/email-designer-agent/blob/main/assets/draft_email_screenshot.png?raw=true" alt="prompt tool" width="75%"/>
 
 
-<img src="https://github.com/CharlieNatoli/email-designer-agent/blob/master/assets/ask_to_edit.png" alt="drawing" width="75%"/>
+### Email display
+ 
+
+<img src="https://github.com/CharlieNatoli/email-designer-agent/blob/main/assets/email_example.png?raw=true" alt="email display" width="75%"/>
+
+### Editing an email previously created
+
+
+<img src="https://raw.githubusercontent.com/CharlieNatoli/email-designer-agent/refs/heads/main/assets/ask_to_edit.png" alt="ask for edit" width="75%"/>
 
 
 ## Getting Started
