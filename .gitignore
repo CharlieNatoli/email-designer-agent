@@ -50,6 +50,11 @@ next-env.d.ts
 
 # notebooks
 /notebooks/venv/
-/notebooks/generated_emails/
+/notebooks/generated_emails/**
 /notebooks/.ipynb_checkpoints/
-/notebooks/__pycache__/
+/notebooks/__pycache__/**
+ 
+# Only show screenshot.png for most recently generated emails that are displayed in the notebooks section. 
+# (should be chagned when new emails are generated / pushed to github)
+!notebooks/generated_emails/**/ 
+!notebooks/generated_emails/*/2025-08-26 1[4-5]*/screenshot.png
