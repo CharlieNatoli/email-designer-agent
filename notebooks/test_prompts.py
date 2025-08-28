@@ -12,6 +12,7 @@ from typing import List, Literal, Optional, Dict, Any
 import json
 from mjml import mjml2html
 from enum import Enum
+import html
 
 import uuid
 
@@ -134,15 +135,35 @@ def generate_emails_from_prompt(system_prompt, test_case, creative_brief, has_pl
         output_text = message.content[0].text
     else: 
         raise Exception(f'invalid provider: {provider}. Must choose "openai" or "anthropic"')
- 
+
     if has_plan_step_in_output:
         output_text = re.search(r'(?s)\{.*\}', output_text).group(0)
-        print('\n\nPLANNING STEP\n\n', json.loads(output_text)['planning'])
+        planning_step = json.loads(output_text)['planning']
         output_mjml = json.loads(output_text)['emailDraftMJML']
+        planning_html = f"""
+<div style="font-size:16pt; font-weight:bold; margin-top:0; padding-top:0;">PLANNING STEP</div><br>
+<div style="white-space: pre-wrap;">{planning_step}</div>"""
     else:
-        output_mjml = output_text
-        
-    print('\n\nMJML\n\n', output_mjml)
+        output_mjml = output_text 
+        planning_html = ""
     
-    display.display(display.Image(create_full_screenshot(output_mjml, test_case)))
-      
+    image_path = create_full_screenshot(output_mjml, test_case)
+    
+    displayHTML = f"""
+    <div style="display:flex; font-family:monospace;">
+       <div style="flex:1;"> 
+            <div style="font-size:8pt; background:#f5f5f5; border-radius:4px; overflow:auto; padding-top:10px;">   
+                {planning_html}
+                <div style="font-size:16pt; font-weight:bold; margin-top:20px;">Email MJML</div><br>
+                <div style="font-size:8pt; white-space: pre-wrap;">{html.escape(output_mjml)}</div>
+            </div>
+        </div>
+        <div style="flex:0 0 450px;">
+            <div style="font-size:16pt; font-weight:bold; text-align:left;">Email Design</div>
+            <img src="{image_path}" style="width:450px; border:1px solid #ddd; border-radius:4px;">
+        </div>
+    </div>
+    """
+
+    display.display(display.HTML(displayHTML))
+ 

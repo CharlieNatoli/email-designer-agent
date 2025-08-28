@@ -15,6 +15,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
+import html
 import os
 from PIL import Image
 
@@ -78,7 +79,11 @@ def create_full_screenshot(base_mjml, test_case):
     setup_folder(test_case, folder_name)
 
     mjml_with_images = base_mjml.replace('="/uploads/', f'="')
-    html_content = mjml2html(mjml_with_images)
+    try:
+        html_content = mjml2html(mjml_with_images)
+    except Exception as e:
+        print(mjml_with_images)
+        raise e
 
     # CHANGED: always inject wrapper
     html_content = inject_wrapper(html_content)
@@ -121,7 +126,6 @@ def screenshot_html(html_file_path, output_path="screenshot.png", width=600, hei
 
         # CHANGED: always screenshot the element
         email_root.screenshot(output_path)
-        print(f"Element screenshot saved to: {output_path}")
 
     finally:
         driver.quit()
