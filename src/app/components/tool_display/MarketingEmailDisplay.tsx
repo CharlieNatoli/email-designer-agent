@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react"; 
+import { useEffect, useId, useMemo, useRef, useState } from "react"; 
 import EmailDraftInProgressNotice from "@/app/components/EmailDraftInProgressNotice";
 import OpenPreviewButton from "@/app/components/OpenPreviewButton";
 import PreviewDrawer from "@/app/components/PreviewDrawer";
@@ -21,15 +21,18 @@ export default function MarketingEmailDisplay({ toolName, status, output, text }
   const instanceId = useId();
   const { isOpen, open, close } = usePreviewDrawer(instanceId);
 
-  const [runningText, setRunningText] = useState(text); 
+  const [runningText, setRunningText] = useState<string>(""); 
+  const lastTextRef = useRef<string | null>(null);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (text) {
-      setRunningText(prev => prev + text);
+    if (text && text !== lastTextRef.current) {
+      setRunningText(prev => (prev ?? "") + text);
+      lastTextRef.current = text;
     }
     if (output) {
       setRunningText(output);
+      lastTextRef.current = null;
     }
   }, [text, output]);
 

@@ -8,6 +8,10 @@ Tool includes:
 - *Email builder tools*: two tools - one to draft emails, and one to make edits to an existing email using vision LLMs.
 - *Notebooks folder* - `/notebooks` includes the analysis done to decide on a set of prompts and base LLM.
 
+## Loom Demo 
+
+https://www.loom.com/share/e1466a924dfc48889239efd1cfdeada2
+
 ## Project screenshots
 
 ### Ask the tool to draft an email 
